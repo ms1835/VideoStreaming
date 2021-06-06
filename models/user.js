@@ -19,9 +19,9 @@ const userSchema=new mongoose.Schema({
 
 userSchema.methods={
     authenticate: function (plainpassword){
-        const isValid = bcrypt.compareSync(plainpassword,this.password)
-        console.log(isValid)
-        if(isValid){
+        const isValidPass = bcrypt.compareSync(plainpassword,this.password)
+        console.log(isValidPass)
+        if(isValidPass){
             return true;
         }else{
             return false;

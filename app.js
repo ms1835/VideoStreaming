@@ -1,12 +1,12 @@
 const express = require('express')
 const app = express()
-const mongoose = require('mongoose')
+const mongoose = require('mongoose').set('debug',true)
 const dotenv = require('dotenv')
 const bcrypt = require('bcrypt')
 const {User} = require('./models/user')
 dotenv.config()
 
-mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true})
+mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex: true})
 .then(()=>{
     console.log("Connected to database")
 }).catch((err)=>{
@@ -46,15 +46,26 @@ app.get('/signup',(req,res)=>{
     }
 })
 
+app.get('/error',(req,res)=>{
+    try{
+        res.render('error')
+    }catch(err){
+        console.log(err)
+    }
+})
+
 app.use('/auth',authRoutes)
 app.post('/user',async (req,res)=>{
     try{
         const newUser={
-            email:req.body.email,
+            email: req.body.email,
             password:req.body.password
         }
         const salt = bcrypt.genSaltSync(10)
-        newUser.password= bcrypt.hashSync(newUser.password,salt)
+        newUser.password= bcrypt.hashSync(newUser.password, salt)
+        if(newUser.password === undefined){
+            console.log('undefined error given')
+        }
         const user = new User(newUser)
         await user.save()
         res.redirect('/')
