@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {renderLoginForm, loginUser}=require('../../controllers/auth/auth')
+const {renderLoginForm, loginUser,logout,renderSignUpPage}=require('../controllers/auth/auth')
 /*------------------------
    GET ROUTES
 --------------------------*/
@@ -8,8 +8,9 @@ const {renderLoginForm, loginUser}=require('../../controllers/auth/auth')
 //@DESC Displays Login Form
 //@ACCESS PUBLIC
 router.get('/login', renderLoginForm)
-
-
+// For logout
+router.get('/logout',logout)
+router.get('/signup',renderSignUpPage)
 
 /*------------------------
    POST ROUTES

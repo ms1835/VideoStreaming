@@ -9,17 +9,45 @@ const renderLoginForm=async(req,res)=>{
 
 const loginUser = async (req,res)=>{
     try{
-        console.log(req.body)
         const foundUser=await User.findOne({email: req.body.email})
         if((!foundUser)||!(foundUser.authenticate(req.body.password))){
-            console.log('Invalid password or user doesn\'t.')
+            console.log('Invalid password or user doesn\'t exist.')
+            res.redirect('/error')
         }else{
             console.log('You are logged in')
+            // Establish a session
+            req.session.isLoggedIn = true
+            req.session.user = foundUser
+            req.flash("success","You are logged in")
+            res.redirect('/')
+            
         }
-        res.redirect('/')
     }catch(err){
         console.log(err)
         res.redirect('/error')
     }
 }
-module.exports={renderLoginForm,loginUser}
+
+const logout = async(req,res)=>{
+    if(req.session){
+        req.session.destroy((err)=>{
+            if(err){
+                console.log(err)
+                res.redirect('/error')
+            }else{
+                req.session = null
+                res.redirect('/')
+            }
+        })
+    }
+}
+
+const renderSignUpPage = async(req,res)=>{
+    try{
+        res.render('signup')
+    }catch(err){
+        console.log(err)
+    }
+}
+
+module.exports={renderLoginForm,loginUser, logout,renderSignUpPage}

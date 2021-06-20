@@ -3,6 +3,9 @@ const app = express()
 const mongoose = require('mongoose').set('debug',true)
 const dotenv = require('dotenv')
 const bcrypt = require('bcrypt')
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+const flash = require('connect-flash')
 const {User} = require('./models/user')
 dotenv.config()
 
@@ -15,36 +18,48 @@ mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:tr
 })
 
 app.set("view engine","ejs")
+// Middleware functions
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+app.use(cookieParser())
+app.use(flash())
+app.use(session({
+    resave:false,
+    saveUninitialized: false,
+    secret: process.env.sessionSecret
+}))
+
+// Custom middleware
+app.use(function(req,res,next){
+    if(req.session.isLoggedIn){
+        res.locals.currentUser = req.session.user
+    }else{
+        res.locals.currentUser = null
+    }
+    res.locals.error = req.flash("error")
+    res.locals.success = req.flash("success")
+    next()
+})
+
 app.use('/public',express.static('public'))
-const authRoutes = require('./routes/auth/auth')
-console.log("Hello")
+
+// Routes
+const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/user')
+const videoRoutes = require('./routes/video')
+const landingRoutes = require('./routes/landing')
+app.get('/',landingRoutes)
+app.use('/auth',authRoutes)
+app.use('/user',userRoutes)
+app.use('/video',videoRoutes)
 
 
-app.get("/", (req,res)=>{
-    try{
-        res.render('./landing/home')
-    }catch(err){
-        console.log(err)
-    } 
-})
+/*
+----------------------------
+----------------------------
+TODO Confirm Password implementation
+*/
 
-app.get('/login',(req,res)=>{
-    try{
-        res.render('login')
-    }catch(err){
-        console.log(err)
-    }
-})
-
-app.get('/signup',(req,res)=>{
-    try{
-        res.render('signup')
-    }catch(err){
-        console.log(err)
-    }
-})
 
 app.get('/error',(req,res)=>{
     try{
@@ -54,34 +69,12 @@ app.get('/error',(req,res)=>{
     }
 })
 
-app.use('/auth',authRoutes)
-app.post('/user',async (req,res)=>{
-    try{
-        const newUser={
-            email: req.body.email,
-            password:req.body.password
-        }
-        const salt = bcrypt.genSaltSync(10)
-        newUser.password= bcrypt.hashSync(newUser.password, salt)
-        if(newUser.password === undefined){
-            console.log('undefined error given')
-        }
-        const user = new User(newUser)
-        await user.save()
-        res.redirect('/')
-    }catch(err){
-        console.log(err)
-        if(err.code===11000){
-            console.log('User already exists')
-        }
-        res.redirect('/error')
-    }
-})
-
 app.get('*',(req,res)=>{
     res.send("Error")
 })
 
-app.listen(process.env.PORT,()=>{
-    console.log('Server has started at port ${process.env.PORT}.')
+app.listen(process.env.PORT, ()=>{
+    console.log(`Server has started at https://localhost:${process.env.PORT}`)
 })
+
+
