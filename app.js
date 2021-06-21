@@ -9,6 +9,7 @@ const flash = require('connect-flash')
 const {User} = require('./models/user')
 dotenv.config()
 
+// Database Connection
 mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex: true})
 .then(()=>{
     console.log("Connected to database")
@@ -42,6 +43,7 @@ app.use(function(req,res,next){
 })
 
 app.use('/public',express.static('public'))
+app.use('/uploads',express.static('uploads'))
 
 // Routes
 const authRoutes = require('./routes/auth')
@@ -59,7 +61,15 @@ app.use('/video',videoRoutes)
 ----------------------------
 TODO Confirm Password implementation
 */
-
+app.get('/user',(req,res)=>{
+    try{
+        res.render('user')
+    }catch(err){
+        console.log(err)
+        res.redirect('/error')
+    }
+    
+})
 
 app.get('/error',(req,res)=>{
     try{

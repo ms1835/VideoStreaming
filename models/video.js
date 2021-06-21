@@ -20,7 +20,24 @@ const videoSchema= new mongoose.Schema({
     creator:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    filePath:{
+        type: String
+    },
+    fileType: {
+        type: String
+    },
+    // Denormalization
+    reaction:[
+        {
+            id: String,
+            // Like, Unlike
+            status:{
+                type: String,
+                enum:['LIKE','UNLIKE']
+            }
+        }
+    ]
 }, {timestamps:true})
 const Video = mongoose.model('Video',videoSchema)
 module.exports={Video}
