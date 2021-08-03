@@ -130,11 +130,20 @@ const renderUploadVideoForm = async(req,res)=>{
 const displayAllVideosHome = async(req,res)=>{
     try{
         const foundVideos = await Video.find({}).populate('creator','name email')
-        console.log(foundVideos)
+        // console.log(foundVideos)
         res.render('./landing/home',{videos:foundVideos})
     }catch(err){
         console.log(err)
     }
 }
 
-module.exports={uploadVideo,renderUploadVideoForm,displayAllVideosHome,likeVideo,unlikeVideo}
+const userVideos = async(req,res)=>{
+    try{
+        const foundVideos = await Video.find({creator:req.session.user})
+        res.render('./user',{videos:foundVideos})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+module.exports={uploadVideo,renderUploadVideoForm,displayAllVideosHome,likeVideo,unlikeVideo,userVideos}

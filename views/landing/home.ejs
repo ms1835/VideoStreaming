@@ -1,7 +1,7 @@
 <!--EJS Syntax-->
 <%- include('../partials/header') -%>
 <div class="container">
-    <h1 style="text-align: center;">View Trending</h1>
+    <h1  class='text-center m-4'>View Trending</h1>
     <div class="row">
         <% for(video of videos){%>
                 <div class="col">
@@ -13,12 +13,15 @@
                           <h4 class="card-title"><%= video.title %> </h4>
                           <h6 class="card-title">Created By: <%= video?.creator?.name %> </h6>
                           <p class="card-text"><%= video.description %> </p>
-                          <form action="/video/<%= video._id %>/like" method="POST">
-                            <button type="submit" class="btn btn-outline-success">Like <%= video?.title %></button>
-                          </form>
-                          <form action="/video/<%= video._id %>/unlike" method="POST">
-                            <button type="submit" class="btn btn-outline-warning">Unlike</button>
-                          </form>
+                          <div class='row'>
+                            <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
+                              <button type="submit" class="btn btn-outline-success">Like</button>
+                            </form>
+                            <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
+                              <button type="submit" class="btn btn-outline-warning">Unlike</button>
+                            </form>
+                          </div>
+                          
                         </div>
                       </div>
                 </div>
