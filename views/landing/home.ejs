@@ -1,11 +1,11 @@
 <!--EJS Syntax-->
 <%- include('../partials/header') -%>
-<div class="container">
-    <h1  class='text-center m-4'>View Trending</h1>
+<div class="container my-3">
+    <h1  class='text-center '>Trending Videos</h1>
     <div class="row">
         <% for(video of videos){%>
-                <div class="col">
-                    <div class="card" style="width: 18rem;">
+                <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
+                    <div class="card border-info" >
                         <video height="240" controls>
                           <source type="video/mp4" src="/<%= video?.filePath %>">
                         </video>
@@ -16,9 +16,11 @@
                           <div class='row'>
                             <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
                               <button type="submit" class="btn btn-outline-success">Like</button>
+                              <span class='text-secondary'><%= video.likes %></span>
                             </form>
                             <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
                               <button type="submit" class="btn btn-outline-warning">Unlike</button>
+                              <span class='text-secondary'><%= video.unlikes %></span>
                             </form>
                           </div>
                           

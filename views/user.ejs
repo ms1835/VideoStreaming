@@ -1,35 +1,40 @@
 <%- include('./partials/header') -%>
 
-
-<div class="container">
-    <h1  class='text-center m-4'>My Videos</h1>
-    <div class="row">
-        <% for(video of videos){%>
-                <div class="col">
-                    <div class="card" style="width: 18rem;">
-                        <video height="240" controls>
-                          <source type="video/mp4" src="/<%= video?.filePath %>">
-                        </video>
-                        <div class="card-body">
-                          <h4 class="card-title"><%= video.title %> </h4>
-                          <h6 class="card-title">Created By: 
-                              <!-- <%= video?.creator?.name %>  -->
-                            <%= currentUser.name %></h6>
-                          <p class="card-text"><%= video.description %> </p>
-                          <div class='row'>
-                            <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
-                              <button type="submit" class="btn btn-outline-success">Like</button>
-                            </form>
-                            <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
-                              <button type="submit" class="btn btn-outline-warning">Unlike</button>
-                            </form>
+<% if(currentUser !== null){%>
+    <div class="container">
+        <h1  class='text-center m-4'><b><%= currentUser.name %> </b>videos</h1>
+        <div class="row">
+            <% for(video of videos){%>
+                    <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
+                        <div class="card border-info">
+                            <video height="240" controls>
+                              <source type="video/mp4" src="/<%= video?.filePath %>">
+                            </video>
+                            <div class="card-body">
+                              <h4 class="card-title"><%= video.title %> </h4>
+                              <h6 class="card-title">Created By: 
+                                  <!-- <%= video?.creator?.name %>  -->
+                                <%= currentUser.name %></h6>
+                              <p class="card-text"><%= video.description %> </p>
+                              <div class='row'>
+                                <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
+                                  <button type="submit" class="btn btn-outline-success">Like</button>
+                                </form>
+                                <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
+                                  <button type="submit" class="btn btn-outline-warning">Unlike</button>
+                                </form>
+                              </div>
+                              
+                            </div>
                           </div>
-                          
-                        </div>
-                      </div>
-                </div>
-        <%} %>
+                    </div>
+            <%} %>
+        </div>
     </div>
-</div>
+<%}
+else {%>
+    <h4 class='m-3'>You need to be logged in to view user videos</h4>
+<%} %>
+
 
 <%- include('./partials/footer') -%>
