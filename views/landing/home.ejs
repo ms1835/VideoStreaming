@@ -11,9 +11,8 @@
                         </video>
                         <div class="card-body">
                           <h4 class="card-title"><%= video.title %> </h4>
-                          <h6 class="card-title">Created By: <%= video?.creator?.name %> </h6>
-                          <p class="card-text"><%= video.description %> </p>
-                          <div class='row'>
+                          <p class="card-text text-muted">Description: <%= video.description %> </p> 
+                          <div class='row mb-3'>
                             <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
                               <button type="submit" class="btn btn-outline-success">Like</button>
                               <span class='text-secondary'><%= video.likes %></span>
@@ -23,7 +22,8 @@
                               <span class='text-secondary'><%= video.unlikes %></span>
                             </form>
                           </div>
-                          
+                          <h6 class="card-text">Created By: <%= video?.creator?.name %> </h6>
+                          <p class="card-text text-right text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
                         </div>
                       </div>
                 </div>

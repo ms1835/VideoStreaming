@@ -9,7 +9,7 @@ const uploadVideo = async(req,res)=>{
         const {videoName,videoDescription} = req.body
         const newVideo={
             title: videoName,
-            descriptoin: videoDescription,
+            description: videoDescription,
             creator: req.session.user._id,
             filePath: req.file.path,
             fileType: req.file.mimetype
