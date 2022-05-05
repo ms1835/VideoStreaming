@@ -1,14 +1,18 @@
 <%- include('./partials/header') -%>
 
+<head>
+  <link rel="stylesheet" href="/public/css/login.css">
+</head>
+
 <% if(currentUser !== null){%>
     <div class="container">
-        <h1  class='text-center m-4'><b><%= currentUser.name %> </b>videos</h1>
+        <h2  class='text-center m-4 fire-text'><b><%= currentUser.name %> </b></h2>
         <div class="row">
             <% for(video of videos){%>
                     <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
                         <div class="card border-info">
                             <video height="240" controls>
-                              <source type="video/mp4" src="/<%= video?.filePath %>">
+                              <source type="video/mp4" src="/<%= video.filePath %>">
                             </video>
                             <div class="card-body">
                               <h4 class="card-title"><%= video.title %> </h4>

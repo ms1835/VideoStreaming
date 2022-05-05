@@ -1,33 +1,36 @@
-<!--EJS Syntax-->
-<%- include('../partials/header') -%>
+<!-- EJS Syntax -->
+<%- include('../partials/header'); -%>
+
 <div class="container my-3">
-    <h1  class='text-center '>Trending Videos</h1>
-    <div class="row">
-        <% for(video of videos){%>
-                <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
-                    <div class="card border-info" >
-                        <video height="240" controls>
-                          <source type="video/mp4" src="/<%= video?.filePath %>">
-                        </video>
-                        <div class="card-body">
-                          <h4 class="card-title"><%= video.title %> </h4>
-                          <p class="card-text text-muted">Description: <%= video.description %> </p> 
-                          <div class='row mb-3'>
-                            <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
-                              <button type="submit" class="btn btn-outline-success">Like</button>
-                              <span class='text-secondary'><%= video.likes %></span>
-                            </form>
-                            <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
-                              <button type="submit" class="btn btn-outline-warning">Unlike</button>
-                              <span class='text-secondary'><%= video.unlikes %></span>
-                            </form>
-                          </div>
-                          <h6 class="card-text">Created By: <%= video?.creator?.name %> </h6>
-                          <p class="card-text text-right text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
-                        </div>
-                      </div>
-                </div>
-        <%} %>
+  <h1  class='text-center '>Trending Videos</h1>
+  <div class="row">
+    <% for(video of videos){%>
+      <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
+        <div class="card border-info" >
+            <video height="240" controls>
+              <source type="video/mp4" src="/<%= video.filePath %>">
+            </video>
+            <div class="card-body">
+              <h4 class="card-title"><%= video.title %> </h4>
+              <p class="card-text text-muted">Description: <%= video.description %> </p> 
+              <div class='row mb-3'>
+                <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
+                  <button type="submit" class="btn btn-outline-success">Like</button>
+                  <span class='text-secondary'><%= video.likes %></span>
+                </form>
+                <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
+                  <button type="submit" class="btn btn-outline-warning">Unlike</button>
+                  <span class='text-secondary'><%= video.unlikes %></span>
+                </form>
+              </div>
+              <h6 class="card-text">Created By: <%= video.creator.name %> </h6>
+              <p class="card-text text-right text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
+            </div>
+          </div>
     </div>
+      <%} %>
+  </div>
 </div>
-<%- include('../partials/footer') -%>
+
+<%- include('../partials/footer'); -%>
+

@@ -27,7 +27,7 @@ app.use(flash())
 app.use(session({
     resave:false,
     saveUninitialized: false,
-    secret: process.env.sessionSecret
+    secret: process.env.SESSION_SECRET
 }))
 
 // Custom middleware
@@ -80,7 +80,7 @@ app.get('/error',(req,res)=>{
 })
 
 app.get('*',(req,res)=>{
-    res.send("Error")
+    res.send("Error from here")
 })
 
 app.listen(process.env.PORT, ()=>{
