@@ -28,20 +28,3 @@ const userSchema = new mongoose.Schema({
 
 const user = mongoose.model('User',userSchema)
 
-const insertToDB = async() =>{
-    try{
-        await user.insertMany([{
-            email:'mayank@gmail.com',password:'mayank',type:'admin'
-        },{
-            email:'shweta@gmail.com',password:'shweta',type:'user'
-        },{
-            email:'chanda@gmail.com',password:'chanda',type:'user'
-        },{
-            email:'anamika@gmail.com',password:'anamika',type:'user'
-        }])
-        console.log("Insert success")
-    }catch(err){
-        console.log(err)
-    }
-}
-insertToDB()
