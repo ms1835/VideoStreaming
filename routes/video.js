@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const multer = require('multer')
+const multer = require('multer') // node.js middleware for handling multipart/form-data,primarily used for uploading files
 const {uploadVideo,renderUploadVideoForm,likeVideo,unlikeVideo} = require('../controllers/video/video')
 const {isLoggedIn} = require('../middleware/authMiddleware')
 

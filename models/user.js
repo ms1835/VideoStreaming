@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt') // library to hash passwords.
 
 const userSchema=new mongoose.Schema({
     email:{

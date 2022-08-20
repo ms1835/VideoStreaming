@@ -6,7 +6,7 @@ const {signupUser} = require('../controllers/user/user')
 const {userVideos} = require('../controllers/video/video')
 
 /*-------------------
-    POST ROUTES
+    GET ROUTES
 --------------------*/
 router.get('/',userVideos)
 

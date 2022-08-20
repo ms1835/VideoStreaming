@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose').set('debug',true)
 const dotenv = require('dotenv')
-const bcrypt = require('bcrypt')
+// const bcrypt = require('bcrypt')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const flash = require('connect-flash')
@@ -20,10 +20,10 @@ mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:tr
 
 app.set("view engine","ejs")
 // Middleware functions
-app.use(express.json())
+app.use(express.json()) // (middleware) recognise incoming request object as json object
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
-app.use(flash())
+app.use(flash()) // define a flash message and render it without redirecting request
 app.use(session({
     resave:false,
     saveUninitialized: false,
@@ -42,7 +42,7 @@ app.use(function(req,res,next){
     next()
 })
 
-app.use('/public',express.static('public'))
+app.use('/public',express.static('public')) // serve static files
 app.use('/uploads',express.static('uploads'))
 
 // Routes
