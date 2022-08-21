@@ -10,7 +10,7 @@ const {User} = require('./models/user')
 dotenv.config()
 
 // Database Connection
-mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex: true})
+mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true, /*useCreateIndex: true*/})
 .then(()=>{
     console.log("Connected to database")
 }).catch((err)=>{
