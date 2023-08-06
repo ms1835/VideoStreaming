@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer') // node.js middleware for handling multipart/form-data,primarily used for uploading files
-const {uploadVideo,renderUploadVideoForm,likeVideo,unlikeVideo} = require('../controllers/video/video')
+const {uploadVideo,renderUploadVideoForm,likeVideo,unlikeVideo, specificVideo} = require('../controllers/video/video')
 const {isLoggedIn} = require('../middleware/authMiddleware')
 
 const storage = multer.diskStorage({
@@ -23,6 +23,7 @@ const upload = multer({storage: storage}).single('video')
   GET ROUTES
 ------------------------*/
 router.get('/upload',[isLoggedIn],renderUploadVideoForm)
+router.get('/:id', specificVideo)
 /*----------------------
   POST ROUTES
 ------------------------*/

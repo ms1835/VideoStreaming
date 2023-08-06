@@ -1,25 +1,33 @@
 <!-- EJS Syntax -->
 <%- include('../partials/header'); -%>
 
+<head>
+  <link rel="stylesheet" href="/public/css/login.css">
+</head>
+
 <div class="container my-3">
-  <h1  class='text-center '>Trending Videos</h1>
+  <h1  class='text-center fire-text '>Trending Videos</h1>
   <div class="row">
     <% for(video of videos){%>
-      <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4">
+      <div class="col-10 offset-1 col-sm-6 offset-sm-0 col-lg-4 mt-4 pe-auto" style="cursor:pointer" onclick="window.location.href= '/video/<%= video._id %>'">
         <div class="card border-info" >
-            <video height="240" controls>
+            <video height="250" controls onmouseover="this.play()" onmouseout="this.pause();this.currentTime=0;">
               <source type="video/mp4" src="/<%= video.filePath %>">
             </video>
             <div class="card-body">
-              <h4 class="card-title"><%= video.title %> </h4>
-              <p class="card-text text-muted">Description: <%= video.description %> </p> 
+              <h5 class="card-title text-truncate" data-toggle="tooltip" title="<%= video.title %>" >
+               Title: <b><%= video.title %> </b>
+              </h5>
+              <p class="card-text text-muted text-truncate" data-toggle="tooltip" title="<%= video.description %>" >
+                Description: <%= video.description %> 
+              </p> 
               <div class='row mb-3'>
                 <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
                   <button type="submit" class="btn btn-outline-success">Like</button>
                   <span class='text-secondary'><%= video.likes %></span>
                 </form>
                 <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
-                  <button type="submit" class="btn btn-outline-warning">Unlike</button>
+                  <button type="submit" class="btn btn-outline-warning">Dislike</button>
                   <span class='text-secondary'><%= video.unlikes %></span>
                 </form>
               </div>

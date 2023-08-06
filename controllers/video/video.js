@@ -1,4 +1,5 @@
 // video controller
+const { User } = require('../../models/user')
 const {Video} = require('../../models/video')
 
 // To upload video
@@ -45,7 +46,7 @@ const likeVideo = async(req,res)=>{
             }
         }
         if(isLiked){
-            throw new Error('Video is already liked')
+            console.log('Video is already liked')
         }else{
             foundVideo.likes++
             if(isUnliked){
@@ -88,7 +89,7 @@ const unlikeVideo = async(req,res)=>{
             }
         }
         if(isUnliked){
-            throw new Error('Video is already unliked')
+            console.log('Video is already unliked')
         }else{
             foundVideo.unlikes++
             if(isLiked){
@@ -146,4 +147,15 @@ const userVideos = async(req,res)=>{
     }
 }
 
-module.exports={uploadVideo,renderUploadVideoForm,displayAllVideosHome,likeVideo,unlikeVideo,userVideos}
+const specificVideo = async(req,res)=>{
+    try{
+        const videoId = req.params.id
+        const foundVideo = await Video.findById(videoId)
+        const foundUser = await User.findById(foundVideo.creator)
+        res.render('./singleVideo',{video:foundVideo, user:foundUser})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+module.exports={uploadVideo,renderUploadVideoForm,displayAllVideosHome,likeVideo,unlikeVideo,userVideos, specificVideo}

@@ -30,15 +30,20 @@ const loginUser = async (req,res)=>{
 
 const logout = async(req,res)=>{
     if(req.session){
-        req.session.destroy((err)=>{
-            if(err){
-                console.log(err)
-                res.redirect('/error')
-            }else{
-                req.session = null
-                res.redirect('/')
-            }
-        })
+        req.session = null;
+        res.redirect('/');
+        // req.session.destroy((err)=>{
+        //     if(err){
+        //         console.log(err)
+        //         res.redirect('/error')
+        //     }else{
+        //         req.session = null
+        //         res.redirect('/')
+        //     }
+        // })
+    }
+    else{
+        res.redirect('/error');
     }
 }
 

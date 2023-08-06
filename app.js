@@ -27,7 +27,8 @@ app.use(flash()) // define a flash message and render it without redirecting req
 app.use(session({
     resave:false,
     saveUninitialized: false,
-    secret: process.env.SESSION_SECRET
+    secret: process.env.SESSION_SECRET,
+    keys: ['x','y']
 }))
 
 // Custom middleware

@@ -1,0 +1,37 @@
+<%- include('./partials/header'); -%>
+
+<div class="container-fluid my-3">
+    <div class="row">
+        <div class="col-12">
+          <div class="card border-info" >
+              <video height="100%" controls autoplay>
+                <source type="video/mp4" src="/<%= video.filePath %>">
+              </video>
+              <div class="card-body">
+                <h5 class="card-title text-truncate" data-toggle="tooltip" title="<%= video.title %>" >
+                 Title: <b><%= video.title %> </b>
+                </h5>
+                <p class="card-text text-muted text-truncate" data-toggle="tooltip" title="<%= video.description %>" >
+                  Description: <%= video.description %> 
+                </p> 
+                <div class='row mb-3'>
+                  <form action="/video/<%= video._id %>/like" method="POST" class='ml-3'>
+                    <button type="submit" class="btn btn-outline-success">Like</button>
+                    <span class='text-secondary'><%= video.likes %></span>
+                  </form>
+                  <form action="/video/<%= video._id %>/unlike" method="POST" class='ml-3'>
+                    <button type="submit" class="btn btn-outline-warning">Dislike</button>
+                    <span class='text-secondary'><%= video.unlikes %></span>
+                  </form>
+                </div>
+                <h6 class="card-text">Created By: <%= user.name %> </h6>
+                <p class="card-text text-right text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
+              </div>
+            </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<%- include('./partials/footer'); -%>
