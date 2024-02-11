@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const bcrypt = require('bcrypt') // library to hash passwords.
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt'; // library to hash passwords.
 
 const userSchema=new mongoose.Schema({
     email:{
@@ -18,19 +18,19 @@ const userSchema=new mongoose.Schema({
     name: {
         type:String
     }
-}, {timestamps: true})
+}, {timestamps: true});
 
 userSchema.methods={
     authenticate: function (plainpassword){
-        const isValidPass = bcrypt.compareSync(plainpassword,this.password)
-        console.log(isValidPass)
+        const isValidPass = bcrypt.compareSync(plainpassword,this.password);
+        console.log(isValidPass);
         if(isValidPass){
             return true;
-        }else{
+        }
+        else{
             return false;
         }
     }
 }
 
-const User=mongoose.model('User',userSchema)
-module.exports={User}
+export const User = mongoose.model('User',userSchema);

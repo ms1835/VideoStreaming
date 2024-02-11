@@ -1,7 +1,7 @@
-const express = require('express')
-const router = express.Router()
-const {renderLoginForm, loginUser,logout,renderSignUpPage}=require('../controllers/auth/auth')
-const {isLoggedIn} = require('../middleware/authMiddleware')
+import express from 'express';
+const router = express.Router();
+import { renderLoginForm, loginUser,logout,renderSignUpPage } from '../controllers/auth/auth.js';
+import { isLoggedIn } from '../middleware/authMiddleware.js';
 
 /*------------------------
    GET ROUTES
@@ -9,13 +9,14 @@ const {isLoggedIn} = require('../middleware/authMiddleware')
 //@ROUTE GET /auth/login
 //@DESC Displays Login Form
 //@ACCESS PUBLIC
-router.get('/login', renderLoginForm)
+router.get('/login', renderLoginForm);
 // For logout
-router.get('/logout',[isLoggedIn],logout)
-router.get('/signup',renderSignUpPage)
+router.get('/logout',[isLoggedIn],logout);
+router.get('/signup',renderSignUpPage);
 
 /*------------------------
    POST ROUTES
 --------------------------*/
-router.post('/login',loginUser)
-module.exports=router
+router.post('/login',loginUser);
+
+export default router;

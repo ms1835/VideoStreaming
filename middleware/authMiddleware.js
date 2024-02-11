@@ -1,13 +1,14 @@
-exports.isLoggedIn = async(req,res,next)=>{
-    try{
+export const isLoggedIn = async(req,res,next) => {
+    try {
         if(req.session.isLoggedIn){
-            next()
+            next();
         }else{
-            req.flash("error",'You need to be logged in to access that.')
-            res.redirect('/auth/login')
+            req.flash("error",'You need to be logged in to access that.');
+            res.redirect('/auth/login');
         }
-    }catch(err){
-        console.log(err)
+    }
+    catch(err) {
+        console.log(err);
     }
 }
 

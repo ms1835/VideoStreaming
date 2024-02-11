@@ -1,14 +1,17 @@
-const mongoose = require('mongoose')
-const dotenv = require('dotenv')
-dotenv.config()
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+
+dotenv.config();
 
 mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true})
 .then(()=>{
-    console.log("Connected to database")
-}).catch((err)=>{
-    console.log("Error")
-    console.log(err)
+    console.log("Connected to database");
 })
+.catch((err)=>{
+    console.log("Error");
+    console.log(err);
+});
 
 
 const userSchema = new mongoose.Schema({
@@ -26,5 +29,5 @@ const userSchema = new mongoose.Schema({
     }
 }, {timestamps:true})
 
-const user = mongoose.model('User',userSchema)
+const User = mongoose.model('User',userSchema);
 

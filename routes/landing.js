@@ -1,9 +1,10 @@
-const express = require('express')
-const router = express.Router()
-const {displayAllVideosHome} = require('../controllers/video/video')
+import express from 'express';
+import { displayAllVideosHome } from '../controllers/video/video.js';
+
+const router = express.Router();
 /*----------------
      GET ROUTES
 -----------------*/
-router.get('/',displayAllVideosHome)
+router.get('/',displayAllVideosHome);
 
-module.exports = router
+export default router;

@@ -1,9 +1,9 @@
 // user controller
-const bcrypt = require("bcrypt")
-const {User} = require('../../models/user')
+import bcrypt from "bcrypt";
+import {User} from '../../models/user.js';
 
 // Signup User Route
-exports.signupUser = async(req,res)=>{
+export const signupUser = async(req,res) => {
     try{
         // TODO Confirm Password
         const newUser={
@@ -13,22 +13,24 @@ exports.signupUser = async(req,res)=>{
             confirmPassword: req.body.confirmPassword
         }
         if(newUser.password === newUser.confirmPassword){
-            console.log("Password confirmed. Proceeding.....")
-        }else{
-            console.log("Password not confirmed.")
-            res.redirect('/error')
-            return
+            console.log("Password confirmed. Proceeding.....");
         }
-        const salt = bcrypt.genSaltSync(10)
-        newUser.password = bcrypt.hashSync(newUser.password,salt)
-        const user = new User(newUser)
-        await user.save()
-        res.redirect('/')
-    }catch(err){
-        console.log(err)
+        else{
+            console.log("Password not confirmed.");
+            res.redirect('/error');
+            return;
+        }
+        const salt = bcrypt.genSaltSync(10);
+        newUser.password = bcrypt.hashSync(newUser.password,salt);
+        const user = new User(newUser);
+        await user.save();
+        res.redirect('/');
+    }
+    catch(err) {
+        console.log(err);
         if(err.code===11000){
-            console.log('User Already Exists')
+            console.log('User Already Exists');
         }
-        res.redirect('/error')
+        res.redirect('/error');
     }
 }

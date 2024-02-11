@@ -1,34 +1,38 @@
-const {User} = require('../../models/user')
-const renderLoginForm=async(req,res)=>{
-    try{
-        res.render('login')
-    }catch(err){
-        console.log(err)
+import { User } from '../../models/user.js';
+
+export const renderLoginForm = async(req,res) => {
+    try {
+        res.render('login');
+    }
+    catch(err) {
+        console.log(err);
     }
 }
 
-const loginUser = async (req,res)=>{
-    try{
+export const loginUser = async (req,res) => {
+    try {
         const foundUser=await User.findOne({email: req.body.email})
-        if((!foundUser)||!(foundUser.authenticate(req.body.password))){
-            console.log('Invalid password or user doesn\'t exist.')
-            res.redirect('/error')
-        }else{
-            console.log('You are logged in')
+        if((!foundUser) || !(foundUser.authenticate(req.body.password))){
+            console.log('Invalid password or user doesn\'t exist.');
+            res.redirect('/error');
+        }
+        else{
+            console.log('You are logged in');
             // Establish a session
-            req.session.isLoggedIn = true
-            req.session.user = foundUser
-            req.flash("success","You are logged in")
-            res.redirect('/')
+            req.session.isLoggedIn = true;
+            req.session.user = foundUser;
+            req.flash("success","You are logged in");
+            res.redirect('/');
             
         }
-    }catch(err){
-        console.log(err)
-        res.redirect('/error')
+    }
+    catch(err){
+        console.log(err);
+        res.redirect('/error');
     }
 }
 
-const logout = async(req,res)=>{
+export const logout = async(req,res) => {
     if(req.session){
         req.session = null;
         res.redirect('/');
@@ -47,12 +51,10 @@ const logout = async(req,res)=>{
     }
 }
 
-const renderSignUpPage = async(req,res)=>{
+export const renderSignUpPage = async(req,res) => {
     try{
-        res.render('signup')
+        res.render('signup');
     }catch(err){
-        console.log(err)
+        console.log(err);
     }
 }
-
-module.exports={renderLoginForm,loginUser, logout,renderSignUpPage}
