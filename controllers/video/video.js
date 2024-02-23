@@ -161,3 +161,16 @@ export const specificVideo = async(req,res)=>{
         console.log(err);
     }
 }
+
+export const deleteVideo = async(req,res)=>{
+    try {
+        const videoId = req.params.id;
+        await Video.deleteOne(videoId);
+        console.log("Video Deleted");
+        const foundVideos = await Video.find({creator:req.session.user});
+        res.render('./user',{videos:foundVideos});
+    }
+    catch(err) {
+        console.log(err);
+    }
+}

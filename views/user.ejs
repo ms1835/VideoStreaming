@@ -27,7 +27,12 @@
                                   <span class='text-secondary'><%= video.unlikes %></span>
                                 </form>
                               </div>
-                              <p class="card-text text-right text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
+                              <div class="row justify-content-around">
+                                <p class="col-8 my-0 align-self-center card-text text-muted">Posted on: <%= video.createdAt.getDate() %>/<%= video.createdAt.getMonth()+1 %>/<%= video.createdAt.getFullYear() %> </p>
+                                <form action="/video/<%= video._id %>" method="DELETE">
+                                  <button type="submit" class="col btn btn-outline-danger mr-0">Delete</button>
+                                </form>
+                              </div>
                             </div>
                           </div>
                     </div>

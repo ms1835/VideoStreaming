@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer'; // node.js middleware for handling multipart/form-data,primarily used for uploading files
-import { uploadVideo, renderUploadVideoForm, likeVideo, unlikeVideo, specificVideo } from '../controllers/video/video.js';
+import { uploadVideo, renderUploadVideoForm, likeVideo, unlikeVideo, specificVideo, deleteVideo } from '../controllers/video/video.js';
 import { isLoggedIn } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -31,5 +31,9 @@ router.get('/:id', specificVideo);
 router.post('/',[isLoggedIn,upload],uploadVideo);
 router.post('/:id/like',[isLoggedIn],likeVideo);
 router.post('/:id/unlike',[isLoggedIn],unlikeVideo);
+/*----------------------
+  DELETE ROUTES
+------------------------*/
+router.delete('/:id',[isLoggedIn], deleteVideo);
 
 export default router;
