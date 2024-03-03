@@ -5,7 +5,7 @@ const Navbar = () => {
   const { toggleSideBar } = useContext(AppContext);
 
     return (
-      <nav class="bg-gray border-dashed border-b-2 border-gray-500 dark:bg-gray-900">
+      <nav class="bg-sky-200 border-dashed border-b-2 border-gray-500 dark:bg-gray-900">
         <div class="max-w-screen flex flex-wrap items-center justify-between mx-auto p-3">
           <div class="flex flex-wrap items-center gap-4">
             <button onClick={toggleSideBar} data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-1 ms-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:focus:ring-gray-600">

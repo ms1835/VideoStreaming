@@ -2,8 +2,3 @@
   margin: 0;
   padding: 0;
 }
-
-#container {
-  background-image: url(../public/background.avif);
-  inset: 0;
-}
