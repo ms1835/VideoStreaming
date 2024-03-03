@@ -47,6 +47,10 @@ export const likeVideo = async(req,res) => {
         }
         if(isLiked){
             console.log('Video is already liked');
+            res.json({
+                success: false,
+                message: "Video already liked"
+            })
         }
         else{
             foundVideo.likes++;
@@ -68,7 +72,11 @@ export const likeVideo = async(req,res) => {
                 await foundVideo.save();
             }
         }
-        res.redirect('/');
+        // res.redirect('/');
+        res.json({
+            success: true,
+            message: "You have liked the video"
+        })
     }
     catch(err){
         console.log(err);
@@ -92,6 +100,10 @@ export const unlikeVideo = async(req,res) => {
         }
         if(isUnliked){
             console.log('Video is already unliked');
+            res.json({
+                success: false,
+                message: "Video already disliked"
+            })
         }else{
             foundVideo.unlikes++;
             if(isLiked){
@@ -112,7 +124,11 @@ export const unlikeVideo = async(req,res) => {
                 await foundVideo.save();
             }
         }
-        res.redirect('/');
+        // res.redirect('/');
+        res.json({
+            success: true,
+            message: "You have disliked the video"
+        })
     }
     catch(err){
         console.log(err);
