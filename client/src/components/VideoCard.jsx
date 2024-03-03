@@ -56,12 +56,14 @@ const VideoCard = ({ video, handleReaction }) => {
 
   return (
     <div className="rounded overflow-hidden shadow-lg h-fit">
-        <video id="video" controls onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-            <source src={"http://localhost:3000/"+video.filePath}/>
-        </video>
+        <div className='aspect-w-16 aspect-h-9'>
+            <video id="video" className='object-cover min-h-80' controls >
+                <source src={"http://localhost:3000/"+video.filePath}/>
+            </video>
+        </div>
         <div className="px-6 py-4">
-            <div className="font-bold text-xl mb-2">{video.title}</div>
-            <p className="text-gray-700 text-base">{video.description}</p>
+            <div className="font-bold text-xl mb-2 truncate" title={video.title}>{video.title}</div>
+            <p className="text-gray-700 text-base truncate" title={video.description}>{video.description}</p>
         </div>
         <div className="px-6 py-4">
             <span onClick={likeVideo} className="inline-flex bg-lime-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">

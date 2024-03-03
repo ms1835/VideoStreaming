@@ -1,11 +1,28 @@
 import React, { useContext } from 'react'
 import { AppContext } from '../context/AppContext'
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { toggleSideBar } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { isLoggedIn, handleSession } = useContext(AppContext);
+  console.log("login: ",isLoggedIn);
+
+  const handleSignOut = (e) => {
+    e.preventDefault();
+    
+    try{
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        handleSession(false);
+        navigate('/auth/login');
+    } catch(error){
+        console.log(error);
+    }
+  }
 
     return (
-      <nav class="bg-sky-200 border-dashed border-b-2 border-gray-500 dark:bg-gray-900">
+      <nav class="sticky bg-sky-200 border-dashed border-b-2 border-gray-500 dark:bg-gray-900">
         <div class="max-w-screen flex flex-wrap items-center justify-between mx-auto p-3">
           <div class="flex flex-wrap items-center gap-4">
             <button onClick={toggleSideBar} data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-1 ms-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:focus:ring-gray-600">
@@ -22,20 +39,27 @@ const Navbar = () => {
           <div class="hidden w-full md:block md:w-auto" id="navbar-default">
             <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               <li>
-                <a href="#" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500" aria-current="page">Home</a>
+                <button onClick={() => navigate('/')} class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500" aria-current="page">Home</button>
               </li>
-              <li>
-                <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">About</a>
-              </li>
-              <li>
-                <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Services</a>
-              </li>
-              <li>
-                <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Pricing</a>
-              </li>
-              <li>
-                <a href="#" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact</a>
-              </li>
+              { !isLoggedIn ?
+              <>
+                <li>
+                    <button onClick={() => navigate('/auth/login')} class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Sign In</button>
+                </li>
+                <li>
+                    <button onClick={() => navigate('/auth/signup')} class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Sign Up</button>
+                </li>
+              </> 
+              :
+              <>
+                <li>
+                    <button onClick={handleSignOut} class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Logout</button>
+                </li>
+                <li>
+                    <button onClick={() => navigate('/video/upload')} class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Create</button>
+                </li>
+              </>
+            }
             </ul>
           </div>
         </div>

@@ -26,7 +26,8 @@ const SignUp = () => {
             })
             const response = await rawData.json();
             console.log(response);
-
+            localStorage.setItem('token', response.data._id);
+            localStorage.setItem('user',response.data);
             setUserData({email:'',password:''});
             navigate('/user');
         } catch(error) {

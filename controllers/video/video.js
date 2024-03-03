@@ -7,10 +7,11 @@ export const uploadVideo = async(req,res) => {
     try{
         console.log('Logged in user is ');
         console.log(req.session.user);
-        const {videoName,videoDescription} = req.body;
+        console.log("Request body: ",req.body);
+        const {title,description} = req.body;
         const newVideo={
-            title: videoName,
-            description: videoDescription,
+            title,
+            description,
             creator: req.session.user._id,
             filePath: req.file.path,
             fileType: req.file.mimetype
@@ -21,12 +22,20 @@ export const uploadVideo = async(req,res) => {
         const newUploadedVideo = new Video(newVideo);
         await newUploadedVideo.save();
         req.flash("success","Video Uploaded Successfully");
-        res.redirect('/');
+        res.json({
+            success: true,
+            message: "Video uploaded successfully"
+        })
+        // res.redirect('/');
     }catch(err){
         req.flash('error',`Something went wrong ${err.message}.`);
         console.log(err);
         // TODO Remove from filesystem ( fs )
-        res.redirect('/error');
+        // res.redirect('/error');
+        res.json({
+            success: false,
+            message: err
+        })
     }
 }
 
@@ -164,7 +173,12 @@ export const displayAllVideosHome = async(req,res) => {
 export const userVideos = async(req,res) => {
     try{
         const foundVideos = await Video.find({creator:req.session.user});
-        res.render('./user',{videos:foundVideos});
+        // res.render('./user',{videos:foundVideos});
+        res.json({
+            success: true,
+            data: foundVideos,
+            user: req.session.user
+        })
     }catch(err){
         console.log(err);
     }
