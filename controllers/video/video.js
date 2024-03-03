@@ -135,7 +135,11 @@ export const displayAllVideosHome = async(req,res) => {
     try{
         const foundVideos = await Video.find({}).populate('creator','name email');
         // console.log(foundVideos)
-        res.render('./landing/home',{videos:foundVideos});
+        // res.render('./landing/home',{videos:foundVideos});
+        res.json({
+            success: true,
+            data: foundVideos
+        })
     }catch(err){
         console.log(err);
     }

@@ -28,6 +28,8 @@ const SignIn = () => {
             console.log(response);
 
             setUserData({email:'',password:''});
+            localStorage.setItem('token', response.data._id);
+            localStorage.getItem('user',response.data);
             navigate('/');
         } catch(error) {
             console.log(error);
@@ -41,7 +43,7 @@ const SignIn = () => {
             <h1 className='text-3xl font-bold mb-2'>Sign In</h1>
             <p>to Continue to Vines</p>
         </div>
-        <div class="relative z-0 w-full mb-5 group">
+        <div class="relative z-0 w-full mb-8 group">
             <input 
                 type="email" 
                 name="email" 
@@ -75,14 +77,18 @@ const SignIn = () => {
                 Password
             </label>
         </div>
-        
-        <button 
-            type="submit" 
-            onClick={handleSubmit}
-            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-            Submit
-        </button>
+        <div class="flex flex-col sm:flex-row relative z-0 w-full mb-5 group justify-between">
+            <button onClick={() => navigate('/auth/signup')} className='mb-4 text-left text-xs sm:mb-0 text-blue-600 align-bottom'>
+                Create Your Channel
+            </button>
+            <button 
+                type="submit" 
+                onClick={handleSubmit}
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+                Submit
+            </button>
+        </div>
     </form>
 
   )
