@@ -17,11 +17,12 @@ Our goal is to create a user-friendly and intuitive platform that fosters a stro
 
 ### Tech Stack Used
 
-* Frontend- `EJS template`, `Bootstrap`
+* Frontend- `React`, `Tailwind`
 * Backend- `NodeJs`,`ExpressJs`
 * Database- `MongoDB`
 * Tools- `MongoDB atlas`
 
 ### Steps to run the project
+Do these for both the client and server directories-
 * Run `npm install` to install dependencies to your system.
 * Run `npm start` to run the application.
