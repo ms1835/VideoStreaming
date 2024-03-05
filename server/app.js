@@ -1,15 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv  from 'dotenv';
-// const bcrypt = require('bcrypt')
 import session from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import flash from 'connect-flash';
-import { User } from './models/user.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import videoRoutes from './routes/video.js';
 import landingRoutes from './routes/landing.js';
+import cors from 'cors';
 
 const app = express();
 dotenv.config();
@@ -26,6 +25,15 @@ mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:tr
 
 app.set("view engine","ejs");
 // Middleware functions
+
+app.use(cors({
+    origin: process.env.FRONTEND_URI,
+    methods: ["GET","POST"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    
+}))
+
 app.use(express.json());// (middleware) recognise incoming request object as json object
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());

@@ -14,7 +14,11 @@ export const loginUser = async (req,res) => {
         const foundUser=await User.findOne({email: req.body.email})
         if((!foundUser) || !(foundUser.authenticate(req.body.password))){
             console.log('Invalid password or user doesn\'t exist.');
-            res.redirect('/error');
+            // res.redirect('/error');
+            res.json({
+                success: false,
+                message: "Invalid password or user doesn\'t exist."
+            })
         }
         else{
             console.log('You are logged in');
@@ -22,13 +26,18 @@ export const loginUser = async (req,res) => {
             req.session.isLoggedIn = true;
             req.session.user = foundUser;
             req.flash("success","You are logged in");
-            res.redirect('/');
+            // res.redirect('/');
+            res.json({
+                success: true,
+                message: "Logged In Successfully",
+                data: foundUser 
+            })
             
         }
     }
     catch(err){
         console.log(err);
-        res.redirect('/error');
+        // res.redirect('/error');
     }
 }
 
