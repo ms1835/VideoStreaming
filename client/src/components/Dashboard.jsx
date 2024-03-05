@@ -2,6 +2,18 @@ import React, {useState, useEffect } from 'react';
 import VideoCard from './VideoCard';
 import Profile from './../assets/profile.jpg'
 
+// Implement remaining functionality
+// const videos = [
+//     {
+//       title: 'Video 1',
+//       thumbnailUrl: 'https://via.placeholder.com/300x200',
+//       description: 'Description for video 1',
+//       views: 1000,
+//       date: '10/10/2023',
+//       duration: '5:00',
+//     }
+//   ];
+
 const Dashboard = () => {
   const [videos, setVideos] = useState([]);
     const [reaction ,setReaction] = useState(false);
@@ -33,7 +45,6 @@ const Dashboard = () => {
   return (
     <div className='flex flex-col m-8'>
       <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-cyan-900 items-center">
-        {/* Profile Picture */}
         <div className='flex justify-center lg:justify-start'>
         <img
           src={Profile}
@@ -42,20 +53,16 @@ const Dashboard = () => {
         />
       </div>
         <div className="flex flex-col justify-between max-w-[80%]">
-          {/* Channel Name */}
           <h1 className="text-3xl text-white font-semibold">{user || "Channel Name"}</h1>
 
           <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Total Videos */}
             <p className="text-white">Total Videos: {videos.length || 0}</p>
 
-            {/* Subscribe Button */}
             <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded">
               Subscribe
             </button>
           </div>
 
-          {/* Description Text */}
           <p className="text-white mt-2">
           Get ready for non-stop entertainment and laughter! FunFlix is your ultimate destination for hilarious
            comedy sketches, heartwarming short films, and thrilling movie reviews. Join us as we bring joy and

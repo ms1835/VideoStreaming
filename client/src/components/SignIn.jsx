@@ -41,7 +41,7 @@ const SignIn = () => {
 
   return (
     
-    <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 md:p-16 self-center h-fit">
+    <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit">
         <div class="relative z-0 w-full mb-8 group text-center">
             <h1 className='text-3xl font-bold mb-2'>Sign In</h1>
             <p>to Continue to Vines</p>

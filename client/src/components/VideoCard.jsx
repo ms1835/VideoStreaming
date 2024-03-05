@@ -4,7 +4,7 @@ const VideoCard = ({ video, handleReaction }) => {
     const uploadDate = new Date(video.createdAt);
 
     const date = uploadDate.getDate();
-    const month = uploadDate.getMonth();
+    const month = uploadDate.getMonth()+1;
     const year = uploadDate.getFullYear();
 
     const handleMouseOver = (event) => {
@@ -57,7 +57,7 @@ const VideoCard = ({ video, handleReaction }) => {
   return (
     <div className="rounded overflow-hidden shadow-lg h-fit">
         <div className='aspect-w-16 aspect-h-9'>
-            <video id="video" className='object-cover min-h-80' controls >
+            <video id="video" className='object-cover min-h-50 md:min-h-80' controls >
                 <source src={"http://localhost:3000/"+video.filePath}/>
             </video>
         </div>

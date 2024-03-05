@@ -36,9 +36,9 @@ const SignUp = () => {
     }
 
   return (
-    <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 md:p-16 self-center h-fit">
+    <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit">
         <div class="relative z-0 w-full mb-5 group text-center">
-            <h1 className='text-2xl font-lg mb-2'>Create Your Channel</h1>
+            <h1 className='text-2xl font-lg font-bold mb-2'>Create Your Channel</h1>
         </div>
         <div class="relative z-0 w-full mb-8 group">
                 <input 

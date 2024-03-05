@@ -1,11 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv  from 'dotenv';
-// const bcrypt = require('bcrypt')
 import session from 'cookie-session';
 import cookieParser from 'cookie-parser';
 import flash from 'connect-flash';
-import { User } from './models/user.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import videoRoutes from './routes/video.js';
@@ -29,14 +27,13 @@ app.set("view engine","ejs");
 // Middleware functions
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URI,
     methods: ["GET","POST"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     
 }))
 
-// app.use('*',cors());
 app.use(express.json());// (middleware) recognise incoming request object as json object
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
@@ -55,10 +52,6 @@ app.use(function(req,res,next){
     }else{
         res.locals.currentUser = null;
     }
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-    // Add other CORS headers as needed
-    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.locals.error = req.flash("error");
     res.locals.success = req.flash("success");
     next()
