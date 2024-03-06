@@ -42,7 +42,10 @@ app.use(session({
     resave:false,
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
-    keys: ['x','y']
+    keys: ['x','y'],
+    cookie: {
+        secure: true
+    }
 }));
 
 // Custom middleware
@@ -72,31 +75,21 @@ app.use('/video',videoRoutes);
 ----------------------------
 TODO Confirm Password implementation
 */
-app.get('/user',(req,res)=>{
+app.get('/',(req,res)=>{
     try {
-        res.render('user');
+        res.send('Server is working.');
     }
     catch(err) {
         console.log(err);
-        res.redirect('/error');
     } 
-})
-
-app.get('/error',(req,res)=>{
-    try {
-        res.render('error');
-    }
-    catch(err) {
-        console.log(err);
-    }
-})
+});
 
 app.get('*',(req,res)=>{
-    res.send("Error from here");
+    res.send("Enter enter a valid route");
 })
 
 app.listen(process.env.PORT, ()=>{
-    console.log(`Server has started at https://localhost:${process.env.PORT}`);
+    console.log(`Server has started at http://localhost:${process.env.PORT}`);
 })
 
 
