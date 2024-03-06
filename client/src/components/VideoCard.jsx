@@ -21,7 +21,7 @@ const VideoCard = ({ video, handleReaction }) => {
     const likeVideo = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch(`http://localhost:3000/video/${video._id}/like`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/like`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -39,7 +39,7 @@ const VideoCard = ({ video, handleReaction }) => {
     const dislikeVideo = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch(`http://localhost:3000/video/${video._id}/unlike`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/unlike`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -58,7 +58,7 @@ const VideoCard = ({ video, handleReaction }) => {
     <div className="rounded overflow-hidden shadow-lg h-fit">
         <div className='aspect-w-16 aspect-h-9'>
             <video id="video" className='object-cover min-h-50 md:min-h-80' controls >
-                <source src={"http://localhost:3000/"+video.filePath}/>
+                <source src={`${import.meta.env.VITE_SERVER_URI}/`+video.filePath}/>
             </video>
         </div>
         <div className="px-6 py-4">

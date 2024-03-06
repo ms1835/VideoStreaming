@@ -18,7 +18,7 @@ const SignIn = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch("http://localhost:3000/auth/login", {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/auth/login`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {

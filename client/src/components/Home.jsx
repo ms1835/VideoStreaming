@@ -8,7 +8,7 @@ const Home = () => {
     useEffect(() => {
         const getVideos = async() => {
             try{
-                const rawData = await fetch("http://localhost:3000", {
+                const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}`, {
                     method: "GET",
                     credentials: 'include'
                 })

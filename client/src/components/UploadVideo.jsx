@@ -28,7 +28,7 @@ const UploadVideo = () => {
             formData.append('title', userData.title);
             formData.append('description', userData.description);
             formData.append('video', userData.video);
-            const rawData = await fetch("http://localhost:3000/video", {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video`, {
                 method: "POST",
                 credentials: 'include',
                 body: formData

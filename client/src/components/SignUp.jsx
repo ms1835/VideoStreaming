@@ -16,7 +16,7 @@ const SignUp = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch("http://localhost:3000/user", {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {

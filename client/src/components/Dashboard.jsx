@@ -22,7 +22,7 @@ const Dashboard = () => {
     useEffect(() => {
         const getVideos = async() => {
             try{
-                const rawData = await fetch("http://localhost:3000/user", {
+                const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user`, {
                     method: "GET",
                     credentials: 'include'
                 })
