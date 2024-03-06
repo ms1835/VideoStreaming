@@ -147,7 +147,7 @@ export const unlikeVideo = async(req,res) => {
 // To display form
 export const renderUploadVideoForm = async(req,res) => {
     try{
-        res.render('uploadVideo');
+        // res.render('uploadVideo');
     }catch(err){
         req.flash('error','Something went wrong ${err.message}.');
         console.log(err);
@@ -163,7 +163,8 @@ export const displayAllVideosHome = async(req,res) => {
         // res.render('./landing/home',{videos:foundVideos});
         res.json({
             success: true,
-            data: foundVideos
+            data: foundVideos,
+            message: "Display all videos"
         })
     }catch(err){
         console.log(err);
@@ -172,12 +173,14 @@ export const displayAllVideosHome = async(req,res) => {
 
 export const userVideos = async(req,res) => {
     try{
+        console.log("User: ",req.session.user);
         const foundVideos = await Video.find({creator:req.session.user});
         // res.render('./user',{videos:foundVideos});
         res.json({
             success: true,
             data: foundVideos,
-            user: req.session.user
+            user: req.session.user,
+            message: "Fetched user videos successfully"
         })
     }catch(err){
         console.log(err);
@@ -189,7 +192,7 @@ export const specificVideo = async(req,res)=>{
         const videoId = req.params.id;
         const foundVideo = await Video.findById(videoId);
         const foundUser = await User.findById(foundVideo.creator);
-        res.render('./singleVideo',{video:foundVideo, user:foundUser});
+        // res.render('./singleVideo',{video:foundVideo, user:foundUser});
     }
     catch(err) {
         console.log(err);
