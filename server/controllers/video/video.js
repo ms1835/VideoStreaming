@@ -151,7 +151,7 @@ export const renderUploadVideoForm = async(req,res) => {
     }catch(err){
         req.flash('error','Something went wrong ${err.message}.');
         console.log(err);
-        res.redirect('/error');
+        // res.redirect('/error');
     }
 }
 

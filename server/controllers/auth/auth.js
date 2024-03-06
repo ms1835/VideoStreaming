@@ -44,7 +44,7 @@ export const loginUser = async (req,res) => {
 export const logout = async(req,res) => {
     if(req.session){
         req.session = null;
-        res.redirect('/');
+        // res.redirect('/');
         // req.session.destroy((err)=>{
         //     if(err){
         //         console.log(err)
@@ -56,7 +56,8 @@ export const logout = async(req,res) => {
         // })
     }
     else{
-        res.redirect('/error');
+        // res.redirect('/error');
+        console.log("error");
     }
 }
 

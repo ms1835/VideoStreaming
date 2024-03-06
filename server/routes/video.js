@@ -23,8 +23,8 @@ const upload = multer({storage: storage}).single('video');
 /*----------------------
   GET ROUTES
 ------------------------*/
-router.get('/upload',[isLoggedIn],renderUploadVideoForm);
-router.get('/:id', specificVideo);
+// router.get('/upload',[isLoggedIn],renderUploadVideoForm);
+// router.get('/:id', specificVideo);
 /*----------------------
   POST ROUTES
 ------------------------*/
@@ -34,6 +34,6 @@ router.post('/:id/unlike',[isLoggedIn],unlikeVideo);
 /*----------------------
   DELETE ROUTES
 ------------------------*/
-router.delete('/:id',[isLoggedIn], deleteVideo);
+// router.delete('/:id',[isLoggedIn], deleteVideo);
 
 export default router;
