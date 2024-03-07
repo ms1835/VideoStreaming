@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv  from 'dotenv';
-import session from 'cookie-session';
+import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import flash from 'connect-flash';
 import authRoutes from './routes/auth.js';
@@ -9,6 +9,8 @@ import userRoutes from './routes/user.js';
 import videoRoutes from './routes/video.js';
 import landingRoutes from './routes/landing.js';
 import cors from 'cors';
+import MongoStore from 'connect-mongo';
+
 
 const app = express();
 dotenv.config();
@@ -23,7 +25,7 @@ mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:tr
     console.log(err);
 });
 
-app.set("view engine","ejs");
+// app.set("view engine","ejs");
 // Middleware functions
 
 app.use(cors({
@@ -43,8 +45,15 @@ app.use(session({
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
     keys: ['x','y'],
+    
+    store: MongoStore.create({ 
+        mongoUrl: process.env.DB_URL, // MongoDB connection URL
+        collection: 'sessions', // Name of the collection to store sessions (optional)
+        autoRemove: 'native', // Automatically remove expired sessions (optional)
+      }),
     cookie: {
-        secure: true
+        secure: true,
+        maxAge: 1000*60*60 // 1 hour
     }
 }));
 
@@ -85,7 +94,7 @@ app.get('/',(req,res)=>{
 });
 
 app.get('*',(req,res)=>{
-    res.send("Enter enter a valid route");
+    res.send("Please enter a valid route");
 })
 
 app.listen(process.env.PORT, ()=>{
