@@ -53,6 +53,7 @@ app.use(session({
       }),
     cookie: {
         secure: true,
+        sameSite: 'none',
         maxAge: 1000*60*60 // 1 hour
     }
 }));
@@ -93,9 +94,9 @@ app.get('/',(req,res)=>{
     } 
 });
 
-app.get('*',(req,res)=>{
-    res.send("Please enter a valid route");
-})
+// app.get('*',(req,res)=>{
+//     res.send("Please enter a valid route");
+// })
 
 app.listen(process.env.PORT, ()=>{
     console.log(`Server has started at http://localhost:${process.env.PORT}`);
