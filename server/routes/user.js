@@ -9,7 +9,7 @@ const router = express.Router();
 /*-------------------
     GET ROUTES
 --------------------*/
-router.get('/',userVideos);
+router.get('/:userID',userVideos); // changed route
 
 /*-------------------
     POST ROUTES

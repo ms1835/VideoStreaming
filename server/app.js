@@ -38,7 +38,7 @@ app.use(cors({
 
 app.use(express.json());// (middleware) recognise incoming request object as json object
 app.use(express.urlencoded({extended:true}));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(flash()); // define a flash message and render it without redirecting request
 app.use(session({
     resave:false,
@@ -53,23 +53,23 @@ app.use(session({
         secure: true,
         sameSite: 'none',
         maxAge: 1000*60*60, // 1 hour,
-        path: '/',
-        domain: '.onrender.com',
-        httpOnly: false
+        // path: '/',
+        // domain: '.onrender.com',
+        // httpOnly: false
     }
 }));
 
 // Custom middleware
-app.use(function(req,res,next){
-    if(req.session.isLoggedIn){
-        res.locals.currentUser = req.session.user;
-    }else{
-        res.locals.currentUser = null;
-    }
-    res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success");
-    next()
-})
+// app.use(function(req,res,next){
+//     if(req.session.isLoggedIn){
+//         res.locals.currentUser = req.session.user;
+//     }else{
+//         res.locals.currentUser = null;
+//     }
+//     res.locals.error = req.flash("error");
+//     res.locals.success = req.flash("success");
+//     next()
+// })
 
 app.use('/public',express.static('public')); // serve static files
 app.use('/uploads',express.static('uploads'));

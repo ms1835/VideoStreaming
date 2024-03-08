@@ -11,7 +11,7 @@ import { isLoggedIn } from '../middleware/authMiddleware.js';
 //@ACCESS PUBLIC
 // router.get('/login', renderLoginForm);
 // For logout
-router.get('/logout',[isLoggedIn],logout);
+router.get('/logout',logout); // restore middleware
 // router.get('/signup',renderSignUpPage);
 
 /*------------------------

@@ -171,15 +171,16 @@ export const displayAllVideosHome = async(req,res) => {
     }
 }
 
-export const userVideos = async(req,res) => {
+export const userVideos = async(req,res) => { // changed implementation to take userId as params instead of req.session.user
     try{
-        console.log("User: ",req.session.user);
-        const foundVideos = await Video.find({creator:req.session.user});
+        console.log("User: ",req.params.userID);
+        const foundVideos = await Video.find({creator:req.params.userID});
+        const foundUser = await User.findById(req.params.userID);
         // res.render('./user',{videos:foundVideos});
         res.json({
             success: true,
             data: foundVideos,
-            user: req.session.user,
+            user: foundUser,
             message: "Fetched user videos successfully"
         })
     }catch(err){

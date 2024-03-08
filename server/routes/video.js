@@ -28,9 +28,9 @@ const upload = multer({storage: storage}).single('video');
 /*----------------------
   POST ROUTES
 ------------------------*/
-router.post('/',[isLoggedIn,upload],uploadVideo);
-router.post('/:id/like',[isLoggedIn],likeVideo);
-router.post('/:id/unlike',[isLoggedIn],unlikeVideo);
+router.post('/',[upload],uploadVideo); // restore middleware
+router.post('/:id/like',likeVideo);  // restore middleware
+router.post('/:id/unlike',unlikeVideo);  // restore middleware
 /*----------------------
   DELETE ROUTES
 ------------------------*/

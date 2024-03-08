@@ -16,13 +16,14 @@ import Profile from './../assets/profile.jpg'
 
 const Dashboard = () => {
   const [videos, setVideos] = useState([]);
-    const [reaction ,setReaction] = useState(false);
+  const [reaction ,setReaction] = useState(false);
   const [user, setUser] = useState(null);
+  const userID = localStorage.getItem('token');
 
     useEffect(() => {
         const getVideos = async() => {
             try{
-                const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user`, {
+                const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/${userID}`, {
                     method: "GET",
                     credentials: 'include'
                 })
