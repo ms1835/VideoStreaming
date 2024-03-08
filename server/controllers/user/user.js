@@ -24,8 +24,8 @@ export const signupUser = async(req,res) => {
         newUser.password = bcrypt.hashSync(newUser.password,salt);
         const user = new User(newUser);
         await user.save();
-        req.session.user = user;
-        req.session.isLoggedIn = true;
+        // req.session.user = user;
+        // req.session.isLoggedIn = true;
         // res.redirect('/');
         res.json({
             success: true,

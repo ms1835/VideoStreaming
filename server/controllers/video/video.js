@@ -6,13 +6,14 @@ import {Video} from '../../models/video.js';
 export const uploadVideo = async(req,res) => {
     try{
         console.log('Logged in user is ');
-        console.log(req.session.user);
+        // console.log(req.session.user);
         console.log("Request body: ",req.body);
+        const userID = req.params.userID;
         const {title,description} = req.body;
         const newVideo={
             title,
             description,
-            creator: req.session.user._id,
+            creator: userID, // req.session.user._id,
             filePath: req.file.path,
             fileType: req.file.mimetype
         };
@@ -42,11 +43,12 @@ export const uploadVideo = async(req,res) => {
 export const likeVideo = async(req,res) => {
     try{
         const videoId = req.params.id;
+        const userID = req.params.userID;
         const foundVideo = await Video.findById(videoId);
         console.log(foundVideo);
         let isLiked = false,isUnliked = false;
         for(const user of foundVideo.reaction){
-            if(req.session.user._id.toString()===user.id){
+            if(userID === user.id){ // req.session.user._id.toString()===user.id
                 if(user.status==='LIKE'){
                     isLiked = true;
                 }else if(user.status==='UNLIKE'){
@@ -66,7 +68,7 @@ export const likeVideo = async(req,res) => {
             if(isUnliked){
                 foundVideo.unlikes--;
                 for(const user of foundVideo.reaction){
-                    if(req.session.user._id.toString()===user.id){
+                    if(userID === user.id){ // req.session.user._id.toString()===user.id
                         user.status = 'LIKE';
                         break;
                     }
@@ -74,7 +76,7 @@ export const likeVideo = async(req,res) => {
                 await foundVideo.save();
             }else{
                 let userStat={
-                    id: req.session.user._id.toString(),
+                    id: userID, // req.session.user._id.toString()
                     status: 'LIKE'
                 };
                 foundVideo.reaction.push(userStat);
@@ -95,11 +97,12 @@ export const likeVideo = async(req,res) => {
 export const unlikeVideo = async(req,res) => {
     try{
         const videoId = req.params.id;
+        const userID = req.params.userID;
         const foundVideo = await Video.findById(videoId);
         console.log(foundVideo);
         let isLiked = false,isUnliked = false;
         for(const user of foundVideo.reaction){
-            if(req.session.user._id.toString()===user.id){
+            if(userID === user.id){ // req.session.user._id.toString()
                 if(user.status==='LIKE'){
                     isLiked = true;
                 }else if(user.status==='UNLIKE'){
@@ -118,7 +121,7 @@ export const unlikeVideo = async(req,res) => {
             if(isLiked){
                 foundVideo.likes--;
                 for(const user of foundVideo.reaction){
-                    if(req.session.user._id.toString()===user.id){
+                    if(userID === user.id){ // req.session.user._id.toString()
                         user.status = 'UNLIKE';
                         break;
                     }
@@ -126,7 +129,7 @@ export const unlikeVideo = async(req,res) => {
                 await foundVideo.save();
             }else{
                 let userStat={
-                    id: req.session.user._id.toString(),
+                    id: userID, // req.session.user._id.toString()
                     status: 'UNLIKE'
                 };
                 foundVideo.reaction.push(userStat);

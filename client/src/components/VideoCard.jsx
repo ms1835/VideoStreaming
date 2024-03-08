@@ -4,6 +4,7 @@ import { AppContext } from '../context/AppContext';
 const VideoCard = ({ video, handleReaction }) => {
     const uploadDate = new Date(video.createdAt);
     const { isLoggedIn } = useContext(AppContext);
+    const userID = localStorage.getItem('token') || null;
 
     const date = uploadDate.getDate();
     const month = uploadDate.getMonth()+1;
@@ -23,7 +24,7 @@ const VideoCard = ({ video, handleReaction }) => {
     const likeVideo = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/like`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/like/${userID}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -41,7 +42,7 @@ const VideoCard = ({ video, handleReaction }) => {
     const dislikeVideo = async(e) => {
         e.preventDefault();
         try {
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/unlike`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/unlike/${userID}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {

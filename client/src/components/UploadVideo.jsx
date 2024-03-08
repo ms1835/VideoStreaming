@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const UploadVideo = () => {
     const [userData, setUserData] = useState({title:'',description:'',video:null});
     const navigate = useNavigate();
+    const userID = localStorage.getItem('token') || null;
 
     const handleChange = (event) => {
         const {name, value, files} = event.target;
@@ -28,7 +29,7 @@ const UploadVideo = () => {
             formData.append('title', userData.title);
             formData.append('description', userData.description);
             formData.append('video', userData.video);
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${userID}`, {
                 method: "POST",
                 credentials: 'include',
                 body: formData

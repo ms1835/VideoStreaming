@@ -23,8 +23,8 @@ export const loginUser = async (req,res) => {
         else{
             console.log('You are logged in');
             // Establish a session
-            req.session.isLoggedIn = true;
-            req.session.user = foundUser;
+            // req.session.isLoggedIn = true;
+            // req.session.user = foundUser;
             req.flash("success","You are logged in");
             // res.redirect('/');
             res.json({
