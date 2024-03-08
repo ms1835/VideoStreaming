@@ -44,17 +44,18 @@ app.use(session({
     resave:false,
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
-    keys: ['x','y'],
     
     store: MongoStore.create({ 
         mongoUrl: process.env.DB_URL, // MongoDB connection URL
         collection: 'sessions', // Name of the collection to store sessions (optional)
-        autoRemove: 'native', // Automatically remove expired sessions (optional)
       }),
     cookie: {
         secure: true,
         sameSite: 'none',
-        maxAge: 1000*60*60 // 1 hour
+        maxAge: 1000*60*60, // 1 hour,
+        path: '/',
+        domain: '.onrender.com',
+        httpOnly: false
     }
 }));
 
