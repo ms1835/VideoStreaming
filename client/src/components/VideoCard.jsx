@@ -61,12 +61,12 @@ const VideoCard = ({ video, handleReaction }) => {
     <div className="rounded overflow-hidden shadow-lg h-fit">
         <div className='aspect-w-16 aspect-h-9'>
             <video id="video" className='object-cover min-h-50 md:min-h-80' controls >
-                <source src={`${import.meta.env.VITE_SERVER_URI}/`+video.filePath}/>
+                <source src={video.filePath}/>
             </video>
         </div>
         <div className="px-6 py-4">
             <div className="font-bold text-xl mb-2 truncate" title={video.title}>{video.title}</div>
-            <p className="text-gray-700 text-base truncate" title={video.description}>{video.description}</p>
+            <p className="text-gray-700 text-base truncate-multiline" title={video.description}>{video.description}</p>
         </div>
         <div className="px-6 py-4">
             <span onClick={likeVideo} className={`${isLoggedIn && "cursor-pointer"} inline-flex bg-lime-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2`}>

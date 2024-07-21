@@ -1,6 +1,7 @@
 import React, {useState, useEffect } from 'react';
 import VideoCard from './VideoCard';
 import Profile from './../assets/profile.jpg'
+import Loader from './Loader';
 
 // Implement remaining functionality
 // const videos = [
@@ -19,10 +20,12 @@ const Dashboard = () => {
   const [reaction ,setReaction] = useState(false);
   const [user, setUser] = useState(null);
   const userID = localStorage.getItem('token');
+  const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const getVideos = async() => {
             try{
+                setLoading(true);
                 const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/${userID}`, {
                     method: "GET",
                     credentials: 'include'
@@ -33,6 +36,8 @@ const Dashboard = () => {
                 setUser(response.user.name);
             } catch(error) {
                 console.log(error);
+            } finally {
+              setLoading(false);
             }
         }
         getVideos();
@@ -44,6 +49,7 @@ const Dashboard = () => {
     }
 
   return (
+    loading ? <Loader /> :
     <div className='flex flex-col m-8'>
       <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-cyan-900 items-center">
         <div className='flex justify-center lg:justify-start'>

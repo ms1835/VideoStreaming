@@ -3,3 +3,12 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.truncate-multiline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Adjust the number of lines as needed */
+  -webkit-box-orient: vertical;
+  height: 70px; /* Adjust the height as needed */
+}

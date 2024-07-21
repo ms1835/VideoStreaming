@@ -5,34 +5,31 @@ const UploadVideo = () => {
     const [userData, setUserData] = useState({title:'',description:'',video:null});
     const navigate = useNavigate();
     const userID = localStorage.getItem('token') || null;
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [video, setVideo] = useState(null);
 
     const handleChange = (event) => {
-        const {name, value, files} = event.target;
-        if(files){
-            setUserData({
-                ...userData,
-                [name]: files[0]
-            })
-        }
-        else{
-            setUserData({
-                ...userData,
-                [name]: value
-            })
-        }
+        const file = event.target.files[0];
+        console.log("File uploaded: ", file);
+        setVideo(file);
     }
 
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const formData = new FormData();
-            formData.append('title', userData.title);
-            formData.append('description', userData.description);
-            formData.append('video', userData.video);
+            const myForm = new FormData();
+            myForm.append('title', title);
+            myForm.append('description', description);
+            myForm.append('video', video);
+
+            for (let [key, value] of myForm.entries()) {
+                console.log(`${key}:`, value);
+            }
             const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${userID}`, {
                 method: "POST",
                 credentials: 'include',
-                body: formData
+                body: myForm
             })
             const response = await rawData.json();
             console.log(response);
@@ -54,8 +51,8 @@ const UploadVideo = () => {
                 type="text" 
                 name="title" 
                 id="floating_title" 
-                value={userData.title}
-                onChange={handleChange}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 class="block py-2 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" 
                 placeholder=" " 
                 required />
@@ -71,8 +68,8 @@ const UploadVideo = () => {
                 type="text" 
                 name="description" 
                 id="floating_description" 
-                value={userData.description}
-                onChange={handleChange}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 class="block py-2 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" 
                 placeholder=" " 
                 required />
@@ -80,7 +77,7 @@ const UploadVideo = () => {
                 for="floating_description" 
                 class="peer-focus:font-medium absolute text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-0 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-placeholder-shown:top-3"
             >
-                Password
+                Description
             </label>
         </div>
         <div class="relative z-0 w-full mb-5 group">
