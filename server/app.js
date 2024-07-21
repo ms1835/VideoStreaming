@@ -10,10 +10,24 @@ import videoRoutes from './routes/video.js';
 import landingRoutes from './routes/landing.js';
 import cors from 'cors';
 import MongoStore from 'connect-mongo';
+import fileUpload from 'express-fileupload';
+import cloudinary from "cloudinary";
 
 
 const app = express();
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+    useTempFiles: true
+    })
+);
+
 dotenv.config();
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET
+});
 
 // Database Connection
 mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:true, /*useCreateIndex: true*/})

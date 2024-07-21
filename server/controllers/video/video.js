@@ -1,28 +1,40 @@
 // video controller
 import { User } from '../../models/user.js';
 import {Video} from '../../models/video.js';
+import cloudinary from "cloudinary";
+import fs from "fs";
 
 // To upload video
 export const uploadVideo = async(req,res) => {
     try{
-        console.log('Logged in user is ');
         // console.log(req.session.user);
         console.log("Request body: ",req.body);
         const userID = req.params.userID;
         const {title,description} = req.body;
+        const video = req.files.video.tempFilePath;
+
+        const cloud = await cloudinary.v2.uploader.upload(video, {
+            folder: "VideoStreaming/videos",
+            resource_type: "video"
+        });
+
+        try{
+            fs.rmSync("./tmp", {recursive: true});
+        } catch(err) {
+            console.log("Error while removing temp folder: ", err);
+        }
+
         const newVideo={
             title,
             description,
             creator: userID, // req.session.user._id,
-            filePath: req.file.path,
-            fileType: req.file.mimetype
+            filePath: cloud.secure_url,
+            fileType: req.files.video.mimetype
         };
-        console.log(req.body);
-        console.log(req.file);
 
         const newUploadedVideo = new Video(newVideo);
         await newUploadedVideo.save();
-        req.flash("success","Video Uploaded Successfully");
+        // req.flash("success","Video Uploaded Successfully");
         res.json({
             success: true,
             message: "Video uploaded successfully"

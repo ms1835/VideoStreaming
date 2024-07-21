@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt'; // library to hash passwords.
+import bcrypt from 'bcryptjs'; // library to hash passwords.
 
 const userSchema=new mongoose.Schema({
     email:{
