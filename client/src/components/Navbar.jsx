@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ToastContext } from '../context/ToastContext';
+import Toast from './Message';
 
 const Navbar = () => {
   const { toggleSideBar } = useContext(AppContext);
@@ -8,6 +10,7 @@ const Navbar = () => {
   const { isLoggedIn, handleSession } = useContext(AppContext);
   console.log("login: ",isLoggedIn);
   const [showPanel, setShowPanel] = useState(false);
+  const { addToast } = useContext(ToastContext);
 
   const handlePanel = () => {
     setShowPanel(!showPanel);
@@ -19,11 +22,13 @@ const Navbar = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         handleSession(false);
+        addToast({type: "success", message: "Logged out successfully"});
         if(flag)
           handlePanel();
         navigate('/auth/login');
     } catch(error){
         console.log(error);
+        addToast({type: "error", message: error.message});
     }
   }
 
@@ -43,6 +48,9 @@ const Navbar = () => {
 
     return (
       <>
+      <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
       <nav class="sticky w-full bg-sky-200 border-dashed border-b-2 border-gray-500 dark:bg-gray-900">
         <div class="max-w-screen flex flex-wrap items-center justify-between mx-auto p-3">
           <div class="flex flex-wrap items-center gap-4">

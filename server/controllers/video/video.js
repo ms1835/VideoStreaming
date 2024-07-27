@@ -47,7 +47,7 @@ export const uploadVideo = async(req,res) => {
         // res.redirect('/error');
         res.json({
             success: false,
-            message: err
+            message: err.message
         })
     }
 }
@@ -70,9 +70,9 @@ export const likeVideo = async(req,res) => {
         }
         if(isLiked){
             console.log('Video is already liked');
-            res.json({
+            return res.json({
                 success: false,
-                message: "Video already liked"
+                message: "You have already liked this video."
             })
         }
         else{
@@ -96,9 +96,9 @@ export const likeVideo = async(req,res) => {
             }
         }
         // res.redirect('/');
-        res.json({
+        return res.json({
             success: true,
-            message: "You have liked the video"
+            message: "Yay!,you liked the video"
         })
     }
     catch(err){
@@ -124,9 +124,9 @@ export const unlikeVideo = async(req,res) => {
         }
         if(isUnliked){
             console.log('Video is already unliked');
-            res.json({
+            return res.json({
                 success: false,
-                message: "Video already disliked"
+                message: "You have already disliked this video."
             })
         }else{
             foundVideo.unlikes++;
@@ -149,7 +149,7 @@ export const unlikeVideo = async(req,res) => {
             }
         }
         // res.redirect('/');
-        res.json({
+        return res.json({
             success: true,
             message: "You have disliked the video"
         })
@@ -179,7 +179,7 @@ export const displayAllVideosHome = async(req,res) => {
         res.json({
             success: true,
             data: foundVideos,
-            message: "Display all videos"
+            message: "Yay!, Welcome to Vines!"
         })
     }catch(err){
         console.log(err);
@@ -196,7 +196,7 @@ export const userVideos = async(req,res) => { // changed implementation to take 
             success: true,
             data: foundVideos,
             user: foundUser,
-            message: "Fetched user videos successfully"
+            message: `Fetched channel videos successfully`
         })
     }catch(err){
         console.log(err);

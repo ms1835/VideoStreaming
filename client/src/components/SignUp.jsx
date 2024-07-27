@@ -1,9 +1,12 @@
-import React, { useState} from 'react'
+import React, { useContext, useState} from 'react'
 import { useNavigate } from 'react-router-dom';
+import Toast from './Message';
+import { ToastContext } from '../context/ToastContext';
 
 const SignUp = () => {
     const [userData, setUserData] = useState({name:'',email:'',password:'',confirmPassword:''});
     const navigate = useNavigate();
+    const { addToast } = useContext(ToastContext);
 
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -28,14 +31,21 @@ const SignUp = () => {
             console.log(response);
             localStorage.setItem('token', response.data._id);
             localStorage.setItem('user',response.data);
+            addToast({type: "success", message: response.message});
             setUserData({email:'',password:''});
             navigate('/user');
         } catch(error) {
             console.log(error);
+            addToast({type: "error", message: error.message});
         }
     }
 
   return (
+    <>
+    <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
+    
     <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit">
         <div class="relative z-0 w-full mb-5 group text-center">
             <h1 className='text-2xl font-lg font-bold mb-2'>Create Your Channel</h1>
@@ -119,6 +129,7 @@ const SignUp = () => {
             Submit
         </button>
     </form>
+    </>
   )
 }
 

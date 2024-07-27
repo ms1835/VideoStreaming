@@ -1,9 +1,12 @@
 import React, { useContext } from 'react'
 import { AppContext } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom';
+import Toast from './Message';
+import { ToastContext } from '../context/ToastContext';
 
 const Sidebar = () => {
    const { isSideBarOpen, isLoggedIn, handleSession } = useContext(AppContext);
+   const { addToast } = useContext(ToastContext);
    const navigate = useNavigate();
 
    const handleSignOut = (e) => {
@@ -13,14 +16,19 @@ const Sidebar = () => {
          localStorage.removeItem('token');
          localStorage.removeItem('user');
          handleSession(false);
+         addToast({type: "success", message: "Logged out successfully"});
          navigate('/auth/login');
       } catch(error){
          console.log(error);
+         addToast({type: "error", message: error.message});
       }
    }
 
   return (
     <>
+      <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
 <aside id="default-sidebar" class={`hidden md:flex flex-col sticky top-0 left-0 z-40 ${isSideBarOpen ? "w-64 min-w-[200px]" : "w-16"} h-screen transition-transform -translate-x-full sm:translate-x-0`} aria-label="Sidebar">
    <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800 bg-color-dark bg-sky-200">
       <ul class="space-y-2 font-medium">

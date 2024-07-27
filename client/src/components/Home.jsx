@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import VideoCard from './VideoCard';
 import Loader from './Loader';
+import { ToastContext } from '../context/ToastContext';
+import Toast from './Message';
 
 const Home = () => {
     const [videos, setVideos] = useState([]);
     const [reaction ,setReaction] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { addToast } = useContext(ToastContext);
 
     useEffect(() => {
         const getVideos = async() => {
@@ -20,6 +23,7 @@ const Home = () => {
                 setVideos(response.data);
             } catch(error) {
                 console.log(error);
+                addToast({type: "error", message: error.message});
             } finally {
               setLoading(false);
             }
@@ -34,11 +38,16 @@ const Home = () => {
 
   return (
     loading ? <Loader /> :
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8 m-8 md:m-16">
-      {videos.map((video, index) => (
-        <VideoCard key={index} video={video} handleReaction={handleReactionChange} />
-      ))}
-    </div>
+    <>
+      <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8 m-8 md:m-16">
+        {videos.map((video, index) => (
+          <VideoCard key={index} video={video} handleReaction={handleReactionChange} />
+        ))}
+      </div>
+    </>
   )
 }
 

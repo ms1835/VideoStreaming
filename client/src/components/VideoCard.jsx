@@ -1,10 +1,13 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
+import Toast from './Message';
+import { ToastContext } from '../context/ToastContext';
 
 const VideoCard = ({ video, handleReaction }) => {
     const uploadDate = new Date(video.createdAt);
     const { isLoggedIn } = useContext(AppContext);
     const userID = localStorage.getItem('token') || null;
+    const { addToast } = useContext(ToastContext);
 
     const date = uploadDate.getDate();
     const month = uploadDate.getMonth()+1;
@@ -34,8 +37,10 @@ const VideoCard = ({ video, handleReaction }) => {
             const response = await rawData.json();
             console.log(response);
             handleReaction();
+            addToast({type: "success", message: response.message});
         } catch(error) {
             console.log(error);
+            addToast({type: "error", message: error.message});
         }
     }
 
@@ -52,12 +57,18 @@ const VideoCard = ({ video, handleReaction }) => {
             const response = await rawData.json();
             console.log(response);
             handleReaction();
+            addToast({type: "success", message: response.message});
         } catch(error) {
             console.log(error);
+            addToast({type: "error", message: error.message});
         }
     }
 
   return (
+    <>
+    <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
     <div className="rounded overflow-hidden shadow-lg h-fit">
         <div className='aspect-w-16 aspect-h-9'>
             <video id="video" className='object-cover min-h-50 md:min-h-80' controls >
@@ -89,6 +100,7 @@ const VideoCard = ({ video, handleReaction }) => {
         </div>
       
     </div>
+    </>
   );
 };
 

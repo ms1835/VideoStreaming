@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import Toast from './Message';
+import { ToastContext } from '../context/ToastContext';
 
 const UploadVideo = () => {
     const [userData, setUserData] = useState({title:'',description:'',video:null});
@@ -8,6 +10,7 @@ const UploadVideo = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [video, setVideo] = useState(null);
+    const { addToast } = useContext(ToastContext);
 
     const handleChange = (event) => {
         const file = event.target.files[0];
@@ -33,15 +36,20 @@ const UploadVideo = () => {
             })
             const response = await rawData.json();
             console.log(response);
-
+            addToast({type: "success", message: response.message});
             setUserData({title:'',description:'',video:null});
             navigate('/user');
         } catch(error) {
             console.log(error);
+            addToast({type: "error", message: error.message});
         }
     }
 
   return (
+    <>
+    <div className='absolute top-3 right-3'>
+        <Toast></Toast>
+      </div>
     <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit">
         <div class="relative z-0 w-full mb-8 group text-center">
             <h1 className='text-3xl font-bold'>Make Your Move</h1>
@@ -100,6 +108,7 @@ const UploadVideo = () => {
             </button>
         </div>
     </form>
+    </>
   )
 }
 
