@@ -5,7 +5,7 @@ import Toast from './Message';
 import { ToastContext } from '../context/ToastContext';
 
 const SignIn = () => {
-    const [userData, setUserData] = useState({email:'',password:''});
+    const [userData, setUserData] = useState({email: `${import.meta.env.VITE_GUEST_USER}`,password: `${import.meta.env.VITE_GUEST_PWD}`});
     const navigate = useNavigate();
     const { handleSession } = useContext(AppContext);
     const { addToast } = useContext(ToastContext);
