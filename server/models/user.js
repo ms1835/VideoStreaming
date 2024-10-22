@@ -17,7 +17,18 @@ const userSchema=new mongoose.Schema({
     },
     name: {
         type:String
-    }
+    },
+    subscribers: [
+        {
+            id: String
+        }
+    ],
+    subscribedTo: [
+        {
+            id: String
+        }
+    ]
+
 }, {timestamps: true});
 
 userSchema.methods={

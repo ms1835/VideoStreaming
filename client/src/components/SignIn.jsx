@@ -33,14 +33,14 @@ const SignIn = () => {
             console.log(response);
 
             setUserData({email:'',password:''});
-            localStorage.setItem('token', response.data._id);
-            localStorage.setItem('user',response.data);
-            addToast({type: "success", message: response.message});
+            localStorage.setItem('token', response?.data?._id);
+            localStorage.setItem('user',response?.data);
+            addToast({type: "success", message: response?.message});
             handleSession(true);
             navigate('/');
         } catch(error) {
             console.log(error);
-            addToast({type: "error", message: error.messsage});
+            addToast({type: "error", message: error?.messsage});
         }
     }
 

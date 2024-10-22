@@ -2,11 +2,13 @@ import React, { useContext, useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 import Toast from './Message';
 import { ToastContext } from '../context/ToastContext';
+import { AppContext } from '../context/AppContext';
 
 const SignUp = () => {
     const [userData, setUserData] = useState({name:'',email:'',password:'',confirmPassword:''});
     const navigate = useNavigate();
     const { addToast } = useContext(ToastContext);
+    const { handleSession } = useContext(AppContext);
 
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -29,11 +31,17 @@ const SignUp = () => {
             })
             const response = await rawData.json();
             console.log(response);
-            localStorage.setItem('token', response.data._id);
-            localStorage.setItem('user',response.data);
-            addToast({type: "success", message: response.message});
-            setUserData({email:'',password:''});
-            navigate('/user');
+            if(response?.success){
+                localStorage.setItem('token', response.data._id);
+                localStorage.setItem('user',response.data);
+                addToast({type: "success", message: response.message});
+                setUserData({email:'',password:''});
+                navigate('/user');
+                handleSession(true);
+            }
+            else{
+                addToast({type: "error", message: response?.message })
+            }
         } catch(error) {
             console.log(error);
             addToast({type: "error", message: error.message});

@@ -203,12 +203,17 @@ export const userVideos = async(req,res) => { // changed implementation to take 
     }
 }
 
-export const specificVideo = async(req,res)=>{
+export const videoById = async(req,res)=>{
     try {
         const videoId = req.params.id;
         const foundVideo = await Video.findById(videoId);
         const foundUser = await User.findById(foundVideo.creator);
         // res.render('./singleVideo',{video:foundVideo, user:foundUser});
+        res.json({
+            success: true,
+            data: foundVideo,
+            message: "Video fetched successfully"
+        })
     }
     catch(err) {
         console.log(err);

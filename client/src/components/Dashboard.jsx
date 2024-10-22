@@ -19,7 +19,6 @@ import Toast from './Message';
 
 const Dashboard = () => {
   const [videos, setVideos] = useState([]);
-  const [reaction ,setReaction] = useState(false);
   const [user, setUser] = useState(null);
   const userID = localStorage.getItem('token');
   const [loading, setLoading] = useState(false);
@@ -35,22 +34,20 @@ const Dashboard = () => {
                 })
                 const response = await rawData.json();
                 console.log(response);
-                setVideos(response.data);
-                setUser(response.user.name);
+                if(response?.success){
+                  setVideos(response?.data);
+                  setUser(response?.user?.name);
+                }
             } catch(error) {
                 console.log(error);
-                addToast({type: "error", message: error.message});
+                addToast({type: "error", message: error?.message});
             } finally {
               setLoading(false);
             }
         }
         getVideos();
         
-    },[reaction]);
-
-    const handleReactionChange = () => {
-        setReaction(!reaction);
-    }
+    },[]);
 
   return (
     loading ? <Loader /> :
@@ -72,11 +69,8 @@ const Dashboard = () => {
             <h1 className="text-3xl text-white font-semibold">{user || "Channel Name"}</h1>
 
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-white">Total Videos: {videos.length || 0}</p>
+              <p className="text-white">Total Videos: {videos?.length || 0}</p>
 
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded">
-                Subscribe
-              </button>
             </div>
 
             <p className="text-white mt-2">
@@ -90,7 +84,7 @@ const Dashboard = () => {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
           {videos.map((video, index) => (
             <Suspense fallback={<Loader />}>
-              <VideoCard key={index} video={video} handleReaction={handleReactionChange} />
+              <VideoCard key={index} video={video} />
             </Suspense>
           ))}
           </div>

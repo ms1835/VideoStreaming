@@ -8,7 +8,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Adjust the number of lines as needed */
+  -webkit-line-clamp: 2; /* Adjust the number of lines as needed */
   -webkit-box-orient: vertical;
-  height: 70px; /* Adjust the height as needed */
+  height: 50px; /* Adjust the height as needed */
 }
