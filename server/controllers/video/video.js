@@ -223,12 +223,28 @@ export const videoById = async(req,res)=>{
 export const deleteVideo = async(req,res)=>{
     try {
         const videoId = req.params.id;
-        await Video.deleteOne(videoId);
-        console.log("Video Deleted");
-        const foundVideos = await Video.find({creator:req.session.user});
-        res.render('./user',{videos:foundVideos});
+        const video = await Video.findById(videoId);
+        if(!video)
+            return res.status(404).json({
+                success: false,
+                message: "Video not found"
+        })
+
+        const publicId = video.filePath.split("/").pop().split(".")[0];
+        await cloudinary.v2.uploader.destroy(`VideoStreaming/videos/${publicId}`, {
+            resource_type: "video"
+        });
+        await Video.findByIdAndDelete(videoId);
+        res.status(200).json({
+            success: true,
+            message: "Video deleted successfully"
+        })
     }
     catch(err) {
         console.log(err);
+        res.status(500).json({
+            status: false,
+            message: "Failed to delete video"
+        })
     }
 }

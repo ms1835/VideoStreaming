@@ -24,6 +24,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const { addToast } = useContext(ToastContext); 
 
+  const handleVideoDelete = (deletedVideoID) => {
+    setVideos(prevVideos => prevVideos.filter(video => video._id !== deletedVideoID))
+    addToast({ type: "success", message: "Video deleted successfully"})
+  }
+
     useEffect(() => {
         const getVideos = async() => {
             try{
@@ -84,7 +89,7 @@ const Dashboard = () => {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
           {videos.map((video, index) => (
             <Suspense fallback={<Loader />}>
-              <VideoCard key={index} video={video} />
+              <VideoCard key={index} video={video} fromDashboard={true} onDelete={handleVideoDelete} />
             </Suspense>
           ))}
           </div>

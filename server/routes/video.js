@@ -34,6 +34,6 @@ router.post('/:id/unlike/:userID',unlikeVideo);  // restore middleware and route
 /*----------------------
   DELETE ROUTES
 ------------------------*/
-// router.delete('/:id',[isLoggedIn], deleteVideo);
+router.delete('/:id', deleteVideo);
 
 export default router;

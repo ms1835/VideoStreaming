@@ -44,7 +44,7 @@ mongoose.connect(process.env.DB_URL,{useNewUrlParser:true, useUnifiedTopology:tr
 
 app.use(cors({
     origin: process.env.FRONTEND_URI,
-    methods: ["GET","POST", "PUT"],
+    methods: ["GET","POST", "PUT", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     
