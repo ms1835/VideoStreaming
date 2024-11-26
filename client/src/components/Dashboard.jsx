@@ -41,7 +41,7 @@ const Dashboard = () => {
                 console.log(response);
                 if(response?.success){
                   setVideos(response?.data);
-                  setUser(response?.user?.name);
+                  setUser(response?.user);
                 }
             } catch(error) {
                 console.log(error);
@@ -71,7 +71,7 @@ const Dashboard = () => {
           />
         </div>
           <div className="flex flex-col justify-between max-w-[80%]">
-            <h1 className="text-3xl text-white font-semibold">{user || "Channel Name"}</h1>
+            <h1 className="text-3xl text-white font-semibold">{user?.name || "Channel Name"}</h1>
 
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-white">Total Videos: {videos?.length || 0}</p>
@@ -89,7 +89,7 @@ const Dashboard = () => {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
           {videos.map((video, index) => (
             <Suspense fallback={<Loader />}>
-              <VideoCard key={index} video={video} fromDashboard={true} onDelete={handleVideoDelete} />
+              <VideoCard key={index} video={video} fromDashboard={true} onDelete={handleVideoDelete} creator={user} />
             </Suspense>
           ))}
           </div>

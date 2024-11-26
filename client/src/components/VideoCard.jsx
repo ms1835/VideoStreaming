@@ -58,16 +58,16 @@ const VideoCard = (props) => {
     </div>
     <div className="flex flex-col rounded overflow-hidden shadow-lg h-fit">
         <div className='aspect-w-16 aspect-h-9'>
-            <video id="video" className='object-cover min-h-50 md:min-h-80' controls >
+            <video id="video" className='w-full h-auto aspect-video object-cover' controls >
                 <source src={video.filePath}/>
             </video>
         </div>
         <div className='flex flex-row p-3 gap-4'>
             <img className='rounded-full h-10 w-10' src={Profile} />
-            <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/video/${video._id}`, { state: video})}>
+            <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/video/${video._id}`, { state: { video, creator: props?.creator }})}>
                 <div className="font-bold text-lg truncate" title={video.title}>{video?.title}</div>
                     <p className="text-gray-700 text-base truncate-multiline" title={video.description}>{video.description}</p>
-                    <p className="text-gray-500 text-base text-sm" title={video?.creator?.name}>{video?.creator?.name}</p>
+                    <p className="text-gray-500 text-base text-sm" title={props?.creator?.name}>{props?.creator?.name}</p>
             </div>
             {/* <img src={Meatballs} className='h-4 w-4' /> */}
         </div>

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Toast from './Message';
 import { ToastContext } from '../context/ToastContext';
+import Loader from './Loader';
 
 const UploadVideo = () => {
     const [userData, setUserData] = useState({title:'',description:'',video:null});
@@ -11,6 +12,7 @@ const UploadVideo = () => {
     const [description, setDescription] = useState('');
     const [video, setVideo] = useState(null);
     const { addToast } = useContext(ToastContext);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (event) => {
         const file = event.target.files[0];
@@ -29,6 +31,7 @@ const UploadVideo = () => {
             for (let [key, value] of myForm.entries()) {
                 console.log(`${key}:`, value);
             }
+            setLoading(true);
             const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${userID}`, {
                 method: "POST",
                 credentials: 'include',
@@ -36,16 +39,24 @@ const UploadVideo = () => {
             })
             const response = await rawData.json();
             console.log(response);
-            addToast({type: "success", message: response.message});
-            setUserData({title:'',description:'',video:null});
-            navigate('/user');
+            if(response.success){
+                addToast({type: "success", message: response.message});
+                setUserData({title:'',description:'',video:null});
+                navigate('/user');
+            }
+            else{
+                addToast({type: "error", message: response.message})
+            }
         } catch(error) {
             console.log(error);
             addToast({type: "error", message: error.message});
+        } finally {
+            setLoading(false);
         }
     }
 
   return (
+    loading ? <Loader /> :
     <>
     <div className='absolute top-3 right-3'>
         <Toast></Toast>

@@ -4,6 +4,8 @@ import {Video} from '../../models/video.js';
 import cloudinary from "cloudinary";
 import fs from "fs";
 
+const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
+
 // To upload video
 export const uploadVideo = async(req,res) => {
     try{
@@ -12,6 +14,13 @@ export const uploadVideo = async(req,res) => {
         const userID = req.params.userID;
         const {title,description} = req.body;
         const video = req.files.video.tempFilePath;
+
+        if(req.files.video.size > MAX_VIDEO_SIZE){
+            return res.status(400).json({
+                success: false,
+                message: `File size exceeds the limit of ${MAX_VIDEO_SIZE / (1024*1024)} MB.`
+            })
+        }
 
         const cloud = await cloudinary.v2.uploader.upload(video, {
             folder: "VideoStreaming/videos",
