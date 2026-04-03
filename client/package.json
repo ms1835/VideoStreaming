@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ms1835.github.io/VideoStreaming",
   "scripts": {
     "dev": "vite",
     "start": "vite",
