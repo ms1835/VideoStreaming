@@ -8,33 +8,31 @@ const userSchema=new mongoose.Schema({
         unique: true
     },
     password:{
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
     isAdmin:{
-        type:Boolean,
+        type: Boolean,
         default: false
     },
     name: {
-        type:String
+        type: String
     },
-    subscribers: [
-        {
-            id: String
-        }
-    ],
-    subscribedTo: [
-        {
-            id: String
-        }
-    ]
+    subscribersCount: {
+        type: Number,
+        default: 0
+    },
+    subscribedToCount: {
+        type: Number,
+        default: 0
+    }
 
 }, {timestamps: true});
 
 userSchema.methods={
     authenticate: function (plainpassword){
         const isValidPass = bcrypt.compareSync(plainpassword,this.password);
-        console.log(isValidPass);
+        console.log("Password matched: ", isValidPass);
         if(isValidPass){
             return true;
         }

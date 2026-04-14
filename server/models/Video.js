@@ -30,14 +30,23 @@ const videoSchema= new mongoose.Schema({
     // Denormalization
     reaction:[
         {
-            id: String,
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
             // Like, Unlike
             status:{
                 type: String,
-                enum:['LIKE','UNLIKE']
+                enum:['LIKE','UNLIKE'],
+                required: true
             }
         }
-    ]
+    ],
+    commentsCount: {
+        type: Number,
+        default: 0
+    }
 }, {timestamps:true});
 
 export const Video = mongoose.model('Video',videoSchema);
