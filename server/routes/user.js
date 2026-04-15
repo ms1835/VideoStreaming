@@ -1,7 +1,7 @@
 // User Routes
 
 import express from 'express';
-import { signupUser, subscribe } from '../controllers/user/user.js';
+import { signupUser, subscribe, subscriptionStatus } from '../controllers/user/user.js';
 import { userVideos } from '../controllers/video/video.js';
 
 const router = express.Router();
@@ -9,6 +9,7 @@ const router = express.Router();
 /*-------------------
     GET ROUTES
 --------------------*/
+router.get('/subscription-status', subscriptionStatus);
 router.get('/:userID',userVideos); // changed route
 
 /*-------------------
