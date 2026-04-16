@@ -7,7 +7,7 @@ import { ToastContext } from '../context/ToastContext';
 const SignIn = () => {
     const [userData, setUserData] = useState({email: `${import.meta.env.VITE_GUEST_USER}`,password: `${import.meta.env.VITE_GUEST_PWD}`});
     const navigate = useNavigate();
-    const { handleSession } = useContext(AppContext);
+    const { handleSession, handleUserData } = useContext(AppContext);
     const { addToast } = useContext(ToastContext);
 
     const handleChange = (event) => {
@@ -32,12 +32,16 @@ const SignIn = () => {
             const response = await rawData.json();
             console.log(response);
 
+            if(response?.success && response?.data){
+                localStorage.setItem('token', response.data._id);
+                handleUserData(response.data);
+                handleSession(true);
+                addToast({type: "success", message: response?.message});
+                navigate('/');
+            } else {
+                addToast({type: "error", message: response?.message || 'Login failed.'});
+            }
             setUserData({email:'',password:''});
-            localStorage.setItem('token', response?.data?._id);
-            localStorage.setItem('user',response?.data);
-            addToast({type: "success", message: response?.message});
-            handleSession(true);
-            navigate('/');
         } catch(error) {
             console.log(error);
             addToast({type: "error", message: error?.messsage});

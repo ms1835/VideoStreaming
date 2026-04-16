@@ -1,6 +1,8 @@
 // video controller
-import { User } from '../../models/user.js';
-import {Video} from '../../models/video.js';
+import { User } from '../../models/User.js';
+import { Video } from '../../models/Video.js';
+import { Comment } from '../../models/Comment.js';
+import { Subscription } from '../../models/Subscription.js';
 import cloudinary from "cloudinary";
 import fs from "fs";
 
@@ -200,11 +202,20 @@ export const userVideos = async(req,res) => { // changed implementation to take 
         console.log("User: ",req.params.userID);
         const foundVideos = await Video.find({creator:req.params.userID});
         const foundUser = await User.findById(req.params.userID);
-        // res.render('./user',{videos:foundVideos});
+
+        let isSubscribed = false;
+        if(req.query.currentUserID && req.query.currentUserID !== req.params.userID){
+            isSubscribed = Boolean(await Subscription.exists({
+                subscriber: req.query.currentUserID,
+                subscribedTo: req.params.userID
+            }));
+        }
+
         res.json({
             success: true,
             data: foundVideos,
             user: foundUser,
+            isSubscribed,
             message: `Fetched channel videos successfully`
         })
     }catch(err){
@@ -212,20 +223,131 @@ export const userVideos = async(req,res) => { // changed implementation to take 
     }
 }
 
+const buildNestedComments = (comments) => {
+    const commentMap = new Map();
+    comments.forEach(comment => {
+        commentMap.set(comment._id.toString(), {
+            ...comment.toObject(),
+            replies: []
+        });
+    });
+
+    const nested = [];
+    comments.forEach(comment => {
+        const commentId = comment._id.toString();
+        const parentId = comment.parentComment ? comment.parentComment.toString() : null;
+        if (parentId && commentMap.has(parentId)) {
+            commentMap.get(parentId).replies.push(commentMap.get(commentId));
+        } else {
+            nested.push(commentMap.get(commentId));
+        }
+    });
+    return nested;
+};
+
+export const getCommentsByVideo = async(req,res) => {
+    try{
+        const videoId = req.params.id;
+        const comments = await Comment.find({video: videoId})
+            .populate('creator','name email')
+            .sort({createdAt: 1});
+        const nestedComments = buildNestedComments(comments);
+        return res.json({
+            success: true,
+            data: nestedComments,
+            message: "Comments fetched successfully"
+        });
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            message: "Unable to fetch comments"
+        });
+    }
+};
+
+export const createComment = async(req,res) => {
+    try{
+        const videoId = req.params.id;
+        const { content, parentComment, userId } = req.body;
+
+        if(!content || !content.trim()){
+            return res.status(400).json({
+                success: false,
+                message: "Comment content cannot be empty"
+            });
+        }
+        if(!userId){
+            return res.status(401).json({
+                success: false,
+                message: "User is required to post a comment"
+            });
+        }
+
+        const video = await Video.findById(videoId);
+        if(!video){
+            return res.status(404).json({
+                success: false,
+                message: "Video not found"
+            });
+        }
+
+        const comment = new Comment({
+            content: content.trim(),
+            creator: userId,
+            video: videoId,
+            parentComment: parentComment || null
+        });
+
+        await comment.save();
+        await Video.findByIdAndUpdate(videoId, {$inc: {commentsCount: 1}});
+
+        const savedComment = await Comment.findById(comment._id)
+            .populate('creator','name email');
+
+        return res.status(201).json({
+            success: true,
+            data: savedComment,
+            message: "Comment posted successfully"
+        });
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            message: "Unable to create comment"
+        });
+    }
+};
+
 export const videoById = async(req,res)=>{
     try {
         const videoId = req.params.id;
-        const foundVideo = await Video.findById(videoId);
-        const foundUser = await User.findById(foundVideo.creator);
-        // res.render('./singleVideo',{video:foundVideo, user:foundUser});
+        const foundVideo = await Video.findById(videoId).populate('creator','name email');
+        if(!foundVideo) {
+            return res.status(404).json({
+                success: false,
+                message: "Video not found"
+            });
+        }
+
+        const comments = await Comment.find({video: videoId})
+            .populate('creator','name email')
+            .sort({createdAt:1});
+        const nestedComments = buildNestedComments(comments);
+
         res.json({
             success: true,
             data: foundVideo,
+            comments: nestedComments,
             message: "Video fetched successfully"
         })
     }
     catch(err) {
         console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Unable to fetch video"
+        });
     }
 }
 

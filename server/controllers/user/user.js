@@ -1,6 +1,7 @@
 // user controller
 import bcrypt from "bcryptjs";
-import { User } from '../../models/user.js';
+import { User } from '../../models/User.js';
+import { Subscription } from '../../models/Subscription.js';
 
 // Signup User Route
 export const signupUser = async(req,res) => {
@@ -50,13 +51,23 @@ export const subscribe = async(req,res) => {
     try {
         const subscriber = req?.body?.user;
         const channelId = req?.body?.channelID;
+
+        if(!subscriber || !channelId){
+            return res.status(400).json({
+                success: false,
+                message: "Missing subscriber or channel ID"
+            });
+        }
+        if(subscriber === channelId){
+            return res.status(400).json({
+                success: false,
+                message: "You cannot subscribe to your own channel"
+            });
+        }
+
         const channelDetails = await User.findById(channelId);
         const userDetails = await User.findById(subscriber);
 
-        console.log("subscriber: ", subscriber);
-        console.log("channelID: ", channelId);
-        console.log("channelDetails", channelDetails);
-        console.log("userDetails", userDetails);
         if(!channelDetails || !userDetails){
             return res.status(404).json({
                 success: false,
@@ -64,28 +75,38 @@ export const subscribe = async(req,res) => {
             })
         }
 
-        let isSubscribed = false;
-        if(channelDetails?.subscribers){
-            for(const user of channelDetails?.subscribers) {
-                if(user.id === subscriber)
-                    isSubscribed = true;
-            }
-        }
-        isSubscribed ? 
-        (
-            channelDetails.subscribers = channelDetails?.subscribers?.filter(user => user.id !== subscriber),
-            userDetails.subscribedTo = userDetails?.subscribedTo?.filter(user => user.id !== channelId)
+        const existingSubscription = await Subscription.findOne({
+            subscriber,
+            subscribedTo: channelId
+        });
 
-        ) : 
-        (
-            channelDetails?.subscribers.push({id: subscriber}),
-            userDetails?.subscribedTo.push({id: channelId})
-        )
+        let isSubscribed;
+        if(existingSubscription){
+            await existingSubscription.deleteOne();
+            isSubscribed = false;
+        } else {
+            await Subscription.create({
+                subscriber,
+                subscribedTo: channelId
+            });
+            isSubscribed = true;
+        }
+
+        const subscribersCount = await Subscription.countDocuments({ subscribedTo: channelId });
+        const subscribedToCount = await Subscription.countDocuments({ subscriber });
+
+        channelDetails.subscribersCount = subscribersCount;
+        userDetails.subscribedToCount = subscribedToCount;
+
         await channelDetails.save();
         await userDetails.save();
+
         res.json({
             success: true,
-            message: isSubscribed ? "Unsubscribed Successfully" : "Subscribed Successfully"
+            message: isSubscribed ? "Subscribed Successfully" : "Unsubscribed Successfully",
+            isSubscribed,
+            subscribersCount,
+            subscribedToCount
         })
     }
     catch(err) {
@@ -94,5 +115,35 @@ export const subscribe = async(req,res) => {
             success: false,
             message: err?.message
         })
+    }
+}
+
+export const subscriptionStatus = async(req,res) => {
+    try {
+        const subscriber = req.query.userID;
+        const channelId = req.query.channelID;
+
+        if(!subscriber || !channelId){
+            return res.status(400).json({
+                success: false,
+                message: "Missing userID or channelID"
+            });
+        }
+
+        const existingSubscription = await Subscription.exists({
+            subscriber,
+            subscribedTo: channelId
+        });
+
+        res.json({
+            success: true,
+            isSubscribed: Boolean(existingSubscription)
+        });
+    } catch(err) {
+        console.log(err);
+        res.json({
+            success: false,
+            message: err?.message
+        });
     }
 }

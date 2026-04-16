@@ -1,6 +1,8 @@
 import React, {useState, useEffect, lazy, Suspense, useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import Profile from './../assets/profile.jpg'
 import Loader from './Loader';
+import { AppContext } from '../context/AppContext';
 import { ToastContext } from '../context/ToastContext';
 const VideoCard = lazy(()=> import('./VideoCard'));
 import Toast from './Message';
@@ -19,21 +21,81 @@ import Toast from './Message';
 
 const Dashboard = () => {
   const [videos, setVideos] = useState([]);
-  const [user, setUser] = useState(null);
-  const userID = localStorage.getItem('token');
+  const [channelOwner, setChannelOwner] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { addToast } = useContext(ToastContext); 
+  const { addToast } = useContext(ToastContext);
+  const { userData } = useContext(AppContext);
+  const { userID: routeUserID } = useParams();
+  const dashboardUserID = routeUserID || localStorage.getItem('token');
 
   const handleVideoDelete = (deletedVideoID) => {
     setVideos(prevVideos => prevVideos.filter(video => video._id !== deletedVideoID))
     addToast({ type: "success", message: "Video deleted successfully"})
   }
 
+  const updateSubscribedState = (channel, isSubscribedFromServer) => {
+    if(!userData || !channel) {
+      setIsSubscribed(false);
+      return;
+    }
+    if(userData._id === channel._id) {
+      setIsSubscribed(false);
+      return;
+    }
+    setIsSubscribed(Boolean(isSubscribedFromServer));
+  }
+
+  const subscribeChannel = async () => {
+    if(!userData?._id){
+      addToast({type: "error", message: "You must be signed in to subscribe."});
+      return;
+    }
+    if(!channelOwner?._id){
+      addToast({type: "error", message: "Channel not found."});
+      return;
+    }
+    if(channelOwner._id === userData._id){
+      addToast({type: "info", message: "You cannot subscribe to your own channel."});
+      return;
+    }
+
+    try {
+      const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/subscribe`, {
+        method: "PUT",
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          channelID: channelOwner._id,
+          user: userData._id
+        })
+      });
+      const response = await rawData.json();
+      if(!response?.success){
+        throw new Error(response?.message || 'Unable to update subscription');
+      }
+
+      setIsSubscribed(Boolean(response.isSubscribed));
+      setChannelOwner(prev => ({
+        ...prev,
+        subscribersCount: response?.subscribersCount ?? prev?.subscribersCount
+      }));
+      addToast({ type: response.success ? 'success' : 'error', message: response.message });
+
+    } catch (error) {
+      console.log(error);
+      addToast({type: "error", message: error?.message || "Subscription update failed."});
+    }
+  }
+
     useEffect(() => {
         const getVideos = async() => {
             try{
                 setLoading(true);
-                const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/${userID}`, {
+                const queryString = userData?._id ? `?currentUserID=${userData._id}` : "";
+        const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/${dashboardUserID}${queryString}`, {
                     method: "GET",
                     credentials: 'include'
                 })
@@ -41,7 +103,8 @@ const Dashboard = () => {
                 console.log(response);
                 if(response?.success){
                   setVideos(response?.data);
-                  setUser(response?.user);
+                  setChannelOwner(response?.user);
+                  updateSubscribedState(response?.user, response?.isSubscribed);
                 }
             } catch(error) {
                 console.log(error);
@@ -50,9 +113,14 @@ const Dashboard = () => {
               setLoading(false);
             }
         }
-        getVideos();
-        
-    },[]);
+        if(dashboardUserID){
+          getVideos();
+        }
+    },[dashboardUserID]);
+
+    useEffect(() => {
+      updateSubscribedState(channelOwner);
+    }, [userData, channelOwner]);
 
   return (
     loading ? <Loader /> :
@@ -71,11 +139,19 @@ const Dashboard = () => {
           />
         </div>
           <div className="flex flex-col justify-between max-w-[80%]">
-            <h1 className="text-3xl text-white font-semibold">{user?.name || "Channel Name"}</h1>
+            <h1 className="text-3xl text-white font-semibold">{channelOwner?.name || "Channel Name"}</h1>
 
-            <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3">
               <p className="text-white">Total Videos: {videos?.length || 0}</p>
-
+              <p className="text-white">Subscribers: {channelOwner?.subscribersCount || 0}</p>
+              {userData && userData._id !== channelOwner?._id && (
+                <button
+                  onClick={subscribeChannel}
+                  className={`${isSubscribed ? "bg-rose-500" : "bg-slate-500 hover:bg-slate-600"} text-white px-4 py-2 rounded-full`}
+                >
+                  {isSubscribed ? "Subscribed" : "Subscribe"}
+                </button>
+              )}
             </div>
 
             <p className="text-white mt-2">

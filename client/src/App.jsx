@@ -23,6 +23,7 @@ function App() {
           <Route path='/auth/login' element={<SignIn />} />
           <Route path='/auth/signup' element={<SignUp />} />
           <Route path='/user' element={<Dashboard />} />
+          <Route path='/user/:userID' element={<Dashboard />} />
           <Route path='/video/upload' element={<UploadVideo />} />
           <Route path='/video/:id' element={<Video />} />
         
