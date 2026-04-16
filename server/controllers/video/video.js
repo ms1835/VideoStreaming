@@ -184,23 +184,77 @@ export const renderUploadVideoForm = async(req,res) => {
 //To display all videos on home
 export const displayAllVideosHome = async(req,res) => {
     try{
-        const foundVideos = await Video.find({}).populate('creator','name email');
-        // console.log(foundVideos)
-        // res.render('./landing/home',{videos:foundVideos});
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+        const limit = Math.max(parseInt(req.query.limit, 10) || 9, 1);
+        const search = req.query.search ? req.query.search.trim() : "";
+
+        const filter = {};
+        if(search){
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const totalVideos = await Video.countDocuments(filter);
+        const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
+        const currentPage = Math.min(page, totalPages);
+        const skip = (currentPage - 1) * limit;
+
+        const foundVideos = await Video.find(filter)
+            .populate('creator','name email')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
         res.json({
             success: true,
             data: foundVideos,
+            pagination: {
+                page: currentPage,
+                limit,
+                totalPages,
+                totalVideos,
+                hasPrevPage: currentPage > 1,
+                hasNextPage: currentPage < totalPages
+            },
             message: "Yay!, Welcome to Vines!"
         })
     }catch(err){
         console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Unable to fetch videos"
+        });
     }
 }
 
 export const userVideos = async(req,res) => { // changed implementation to take userId as params instead of req.session.user
     try{
         console.log("User: ",req.params.userID);
-        const foundVideos = await Video.find({creator:req.params.userID});
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+        const limit = Math.max(parseInt(req.query.limit, 10) || 9, 1);
+        const search = req.query.search ? req.query.search.trim() : "";
+
+        const filter = { creator: req.params.userID };
+        if(search){
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const totalVideos = await Video.countDocuments(filter);
+        const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
+        const currentPage = Math.min(page, totalPages);
+        const skip = (currentPage - 1) * limit;
+
+        const foundVideos = await Video.find(filter)
+            .populate('creator','name email')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
         const foundUser = await User.findById(req.params.userID);
 
         let isSubscribed = false;
@@ -215,11 +269,23 @@ export const userVideos = async(req,res) => { // changed implementation to take 
             success: true,
             data: foundVideos,
             user: foundUser,
+            pagination: {
+                page: currentPage,
+                limit,
+                totalPages,
+                totalVideos,
+                hasPrevPage: currentPage > 1,
+                hasNextPage: currentPage < totalPages
+            },
             isSubscribed,
             message: `Fetched channel videos successfully`
         })
     }catch(err){
         console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Unable to fetch channel videos"
+        });
     }
 }
 
