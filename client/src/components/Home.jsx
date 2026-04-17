@@ -42,8 +42,35 @@ const Home = () => {
         }
     }
 
+    const searchVideos = async (query) => {
+        try {
+            setLoading(true);
+            const params = new URLSearchParams({
+                search: query
+            
+            });
+
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/semantic-search?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const response = await rawData.json();
+            if (!response?.success) {
+                throw new Error(response?.message || 'Unable to search videos');
+            }
+            setVideos(response.data || []);
+            setPage(1);
+            setTotalPages(response.pagination?.totalPages || 1);
+        } catch (error) {
+            console.log(error);
+            addToast({ type: 'error', message: error.message });
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
-        fetchVideos(page, searchQuery);
+        searchVideos(searchQuery);
     }, [page, searchQuery]);
 
     const handleSearch = (event) => {

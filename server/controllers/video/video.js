@@ -5,6 +5,7 @@ import { Comment } from '../../models/Comment.js';
 import { Subscription } from '../../models/Subscription.js';
 import cloudinary from "cloudinary";
 import fs from "fs";
+import { indexVideo } from '../../indexVideo.js';
 
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
 
@@ -45,6 +46,7 @@ export const uploadVideo = async(req,res) => {
 
         const newUploadedVideo = new Video(newVideo);
         await newUploadedVideo.save();
+        indexVideo(newUploadedVideo);
         // req.flash("success","Video Uploaded Successfully");
         res.json({
             success: true,
@@ -442,6 +444,31 @@ export const deleteVideo = async(req,res)=>{
         res.status(500).json({
             status: false,
             message: "Failed to delete video"
+        })
+    }
+}
+
+export const semanticSearch = async(req, res) => {
+    try {
+        const { query } = req.params.search;
+        const queryEmbedding = await getTextEmbedding(query);
+        const result = await qdrant.search('video_embeddings', {
+            vector: queryEmbedding,
+            limit: 10,
+            with_payload: true
+        })
+        const videoIds = result.map(item => item.payload.id);
+        const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
+        const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
+        res.json({
+            success: true,
+            data: orderedVideos
+        })
+    } catch(err) {
+        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Semantic search failed"
         })
     }
 }
