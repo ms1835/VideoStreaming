@@ -6,6 +6,8 @@ import { Subscription } from '../../models/Subscription.js';
 import cloudinary from "cloudinary";
 import fs from "fs";
 import { indexVideo } from '../../indexVideo.js';
+import { getEmbedding } from '../../embedding.js';
+import qdrant from '../../qdrant.js';
 
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
 
@@ -450,25 +452,35 @@ export const deleteVideo = async(req,res)=>{
 
 export const semanticSearch = async(req, res) => {
     try {
-        const { query } = req.params.search;
-        const queryEmbedding = await getTextEmbedding(query);
+        console.log("IN semantic search API");
+        const { search: query } = req.query;
+        if (!query || typeof query !== 'string' || !query.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing or invalid search query"
+            });
+        }
+        console.log("Search query:", query);
+        const queryEmbedding = await getEmbedding(query);
+        console.log("Query embedding obtained successfully");
         const result = await qdrant.search('video_embeddings', {
             vector: queryEmbedding,
             limit: 10,
             with_payload: true
-        })
+        });
+        console.log("Search completed successfully, result count:", result.length);
         const videoIds = result.map(item => item.payload.id);
         const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
         const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
         res.json({
             success: true,
             data: orderedVideos
-        })
+        });
     } catch(err) {
-        console.log(err);
+        console.error("Semantic search error:", err);
         res.status(500).json({
             success: false,
             message: "Semantic search failed"
-        })
+        });
     }
 }
