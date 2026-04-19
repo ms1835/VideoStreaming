@@ -70,6 +70,7 @@ const Home = () => {
     }
 
     useEffect(() => {
+        // fetchVideos(page, searchQuery);
         searchVideos(searchQuery);
     }, [page, searchQuery]);
 

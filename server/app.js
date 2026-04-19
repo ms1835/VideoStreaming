@@ -91,7 +91,7 @@ app.use('/public',express.static('public')); // serve static files
 app.use('/uploads',express.static('uploads'));
 
 // Routes
-app.get('/',landingRoutes);
+app.use('/',landingRoutes);
 app.use('/auth',authRoutes);
 app.use('/user',userRoutes);
 app.use('/video',videoRoutes);
