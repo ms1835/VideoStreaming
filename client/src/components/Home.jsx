@@ -47,7 +47,6 @@ const Home = () => {
             setLoading(true);
             const params = new URLSearchParams({
                 search: query
-            
             });
 
             const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/semantic-search?${params.toString()}`, {
@@ -70,8 +69,11 @@ const Home = () => {
     }
 
     useEffect(() => {
-        // fetchVideos(page, searchQuery);
-        searchVideos(searchQuery);
+        if (searchQuery) {
+            searchVideos(searchQuery);
+        } else {
+            fetchVideos(page);
+        }
     }, [page, searchQuery]);
 
     const handleSearch = (event) => {

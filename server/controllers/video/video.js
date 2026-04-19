@@ -454,12 +454,36 @@ export const semanticSearch = async(req, res) => {
     try {
         console.log("IN semantic search API");
         const { search: query } = req.query;
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 2);
+        const limit = Math.max(parseInt(req.query.limit, 10) || 9, 2);
+
         if (!query || typeof query !== 'string' || !query.trim()) {
-            return res.status(400).json({
-                success: false,
-                message: "Missing or invalid search query"
+            const totalVideos = await Video.countDocuments();
+            const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
+            const currentPage = Math.min(page, totalPages);
+            const skip = (currentPage - 1) * limit;
+
+            const foundVideos = await Video.find()
+                .populate('creator', 'name email')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            return res.json({
+                success: true,
+                data: foundVideos,
+                pagination: {
+                    page: currentPage,
+                    limit,
+                    totalPages,
+                    totalVideos,
+                    hasPrevPage: currentPage > 1,
+                    hasNextPage: currentPage < totalPages
+                },
+                message: "Fetched all videos"
             });
         }
+
         console.log("Search query:", query);
         const queryEmbedding = await getEmbedding(query);
         console.log("Query embedding obtained successfully");
@@ -474,7 +498,15 @@ export const semanticSearch = async(req, res) => {
         const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
         res.json({
             success: true,
-            data: orderedVideos
+            data: orderedVideos,
+            pagination: {
+                page: 1,
+                limit: orderedVideos.length,
+                totalPages: 1,
+                totalVideos: orderedVideos.length,
+                hasPrevPage: false,
+                hasNextPage: false
+            }
         });
     } catch(err) {
         console.error("Semantic search error:", err);
