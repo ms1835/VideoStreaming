@@ -94,7 +94,7 @@ const Home = () => {
                 <div className='absolute top-3 right-3'>
                     <Toast></Toast>
                 </div>
-                <div className='m-8 md:m-16'>
+                <div className='px-4 md:px-16 py-8'>
                     <form onSubmit={handleSearch} className='mb-6 flex flex-col sm:flex-row gap-3'>
                         <input
                             type='text'
@@ -107,12 +107,14 @@ const Home = () => {
                         <button type='button' onClick={handleClearSearch} className='px-4 py-2 bg-gray-300 text-slate-800 rounded hover:bg-gray-400'>Clear</button>
                     </form>
 
-                    <div className="w-screen grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
-                        {videos.length > 0 ? videos.map((video, index) => (
-                            <VideoCard key={index} video={video} fromDashboard={false} />
-                        )) : (
-                            <div className='col-span-full text-center text-gray-600'>No videos found.</div>
-                        )}
+                    <div className="w-full overflow-x-hidden overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
+                            {videos.length > 0 ? videos.map((video, index) => (
+                                <VideoCard key={index} video={video} fromDashboard={false} />
+                            )) : (
+                                <div className='col-span-full text-center text-gray-600'>No videos found.</div>
+                            )}
+                        </div>
                     </div>
 
                     <div className='mt-8 flex items-center justify-center gap-3'>
