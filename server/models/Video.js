@@ -46,6 +46,10 @@ const videoSchema= new mongoose.Schema({
     commentsCount: {
         type: Number,
         default: 0
+    },
+    embedding: {
+        type: [Number],
+        index: false
     }
 }, {timestamps:true});
 

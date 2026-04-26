@@ -12,7 +12,6 @@ import cors from 'cors';
 import MongoStore from 'connect-mongo';
 import fileUpload from 'express-fileupload';
 import cloudinary from "cloudinary";
-import { initializeQdrant } from './qdrant.js';
 
 
 const app = express();
@@ -23,7 +22,6 @@ app.use(fileUpload({
 );
 
 dotenv.config();
-await initializeQdrant();
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,

@@ -5,12 +5,12 @@ import { Comment } from '../../models/Comment.js';
 import { Subscription } from '../../models/Subscription.js';
 import cloudinary from "cloudinary";
 import fs from "fs";
-import { indexVideo } from '../../indexVideo.js';
+// import { indexVideo } from '../../indexVideo.js';
 import { getEmbedding } from '../../embedding.js';
-import qdrant from '../../qdrant.js';
-import { indexOSVideo } from '../../indexOSVideo.js';
+// import qdrant from '../../qdrant.js';
+import {  indexVideoByAtlas } from '../../indexOSVideo.js';
 import { getBedrockEmbedding } from "../../bedrock.js";
-import { openSearchClient } from "../../openSearch.js";
+// import { openSearchClient } from "../../openSearch.js";
 
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
 
@@ -51,8 +51,9 @@ export const uploadVideo = async(req,res) => {
 
         const newUploadedVideo = new Video(newVideo);
         await newUploadedVideo.save();
-        indexOSVideo(newUploadedVideo).catch(err => console.log("Error in indexing video: ", err));
-        
+        // indexOSVideo(newUploadedVideo).catch(err => console.log("Error in indexing video: ", err));
+        indexVideoByAtlas(newUploadedVideo).catch(err => console.log("Error in indexing video: ", err));
+
         // req.flash("success","Video Uploaded Successfully");
         res.json({
             success: true,
@@ -454,120 +455,181 @@ export const deleteVideo = async(req,res)=>{
     }
 }
 
-export const semanticSearch = async(req, res) => {
+// export const semanticSearch = async(req, res) => {
+//     try {
+//         console.log("IN semantic search API");
+//         const { search: query } = req.query;
+//         const page = Math.max(parseInt(req.query.page, 10) || 1, 2);
+//         const limit = Math.max(parseInt(req.query.limit, 10) || 9, 2);
+
+//         if (!query || typeof query !== 'string' || !query.trim()) {
+//             const totalVideos = await Video.countDocuments();
+//             const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
+//             const currentPage = Math.min(page, totalPages);
+//             const skip = (currentPage - 1) * limit;
+
+//             const foundVideos = await Video.find()
+//                 .populate('creator', 'name email')
+//                 .sort({ createdAt: -1 })
+//                 .skip(skip)
+//                 .limit(limit);
+
+//             return res.json({
+//                 success: true,
+//                 data: foundVideos,
+//                 pagination: {
+//                     page: currentPage,
+//                     limit,
+//                     totalPages,
+//                     totalVideos,
+//                     hasPrevPage: currentPage > 1,
+//                     hasNextPage: currentPage < totalPages
+//                 },
+//                 message: "Fetched all videos"
+//             });
+//         }
+
+//         console.log("Search query:", query);
+//         const queryEmbedding = await getEmbedding(query);
+//         console.log("Query embedding obtained successfully");
+//         const result = await qdrant.search('video_embeddings', {
+//             vector: queryEmbedding,
+//             limit: 10,
+//             with_payload: true
+//         });
+//         console.log("Search completed successfully, result count:", result.length);
+//         const videoIds = result.map(item => item.payload.id);
+//         const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
+//         const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
+//         res.json({
+//             success: true,
+//             data: orderedVideos,
+//             pagination: {
+//                 page: 1,
+//                 limit: orderedVideos.length,
+//                 totalPages: 1,
+//                 totalVideos: orderedVideos.length,
+//                 hasPrevPage: false,
+//                 hasNextPage: false
+//             }
+//         });
+//     } catch(err) {
+//         console.error("Semantic search error:", err);
+//         res.status(500).json({
+//             success: false,
+//             message: "Semantic search failed"
+//         });
+//     }
+// }
+
+// export const trendingVideos = async(req, res) => {
+//     try {
+//         const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+//         const limit = Math.max(parseInt(req.query.limit, 10) || 9, 1);
+//         const { search: query } = req.query;
+
+//         const totalVideos = await Video.countDocuments;
+//         const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
+//         const currentPage = Math.min(page, totalPages);
+//         const skip = (currentPage - 1) * limit;
+
+//         const queryEmbedding = await getBedrockEmbedding(query || "trending videos");
+//         const osResult = await openSearchClient.search({
+//             index: 'videos',
+//             body: {
+//                 size: 10,
+//                 query: {
+//                     knn: {
+//                         embedding: {
+//                             vector: queryEmbedding,
+//                             k: 10
+//                         }
+//                     }
+//                 }
+//             }
+//         });
+//         const videoIds = osResult.body.hits.hits.map(hit => hit._source.videoId);
+//         const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
+//         const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
+//         res.json({
+//             success: true,
+//             data: orderedVideos,
+//             pagination: {
+//                 page: currentPage,
+//                 limit,
+//                 totalPages,
+//                 totalVideos,
+//                 hasPrevPage: currentPage > 1,
+//                 hasNextPage: currentPage < totalPages
+//             },
+//             message: "Fetched trending videos successfully"
+//         });
+//     } catch(err) {
+//         console.error("Error fetching trending videos:", err);
+//         res.status(500).json({
+//             success: false,
+//             message: "Unable to fetch trending videos"
+//         });
+//     }
+// }
+
+export const relatedVideos = async(req, res) => {
     try {
-        console.log("IN semantic search API");
         const { search: query } = req.query;
-        const page = Math.max(parseInt(req.query.page, 10) || 1, 2);
-        const limit = Math.max(parseInt(req.query.limit, 10) || 9, 2);
-
         if (!query || typeof query !== 'string' || !query.trim()) {
-            const totalVideos = await Video.countDocuments();
-            const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
-            const currentPage = Math.min(page, totalPages);
-            const skip = (currentPage - 1) * limit;
-
-            const foundVideos = await Video.find()
-                .populate('creator', 'name email')
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit);
-
-            return res.json({
-                success: true,
-                data: foundVideos,
-                pagination: {
-                    page: currentPage,
-                    limit,
-                    totalPages,
-                    totalVideos,
-                    hasPrevPage: currentPage > 1,
-                    hasNextPage: currentPage < totalPages
-                },
-                message: "Fetched all videos"
+            return res.status(400).json({
+                success: false,
+                message: "Related videos search query cannot be empty"
+            });
+        }
+        const searchQuery = `
+        Search Query: ${query}
+        Related videos to the above search query
+        `;
+        const queryEmbedding = await getBedrockEmbedding(searchQuery);
+        if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
+            return res.status(500).json({
+                success: false,
+                message: "Unable to compute embedding for related videos"
             });
         }
 
-        console.log("Search query:", query);
-        const queryEmbedding = await getEmbedding(query);
-        console.log("Query embedding obtained successfully");
-        const result = await qdrant.search('video_embeddings', {
-            vector: queryEmbedding,
-            limit: 10,
-            with_payload: true
-        });
-        console.log("Search completed successfully, result count:", result.length);
-        const videoIds = result.map(item => item.payload.id);
-        const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
-        const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
-        res.json({
-            success: true,
-            data: orderedVideos,
-            pagination: {
-                page: 1,
-                limit: orderedVideos.length,
-                totalPages: 1,
-                totalVideos: orderedVideos.length,
-                hasPrevPage: false,
-                hasNextPage: false
-            }
-        });
-    } catch(err) {
-        console.error("Semantic search error:", err);
-        res.status(500).json({
-            success: false,
-            message: "Semantic search failed"
-        });
-    }
-}
-
-export const trendingVideos = async(req, res) => {
-    try {
-        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-        const limit = Math.max(parseInt(req.query.limit, 10) || 9, 1);
-        const { search: query } = req.query;
-
-        const totalVideos = await Video.countDocuments;
-        const totalPages = totalVideos > 0 ? Math.ceil(totalVideos / limit) : 1;
-        const currentPage = Math.min(page, totalPages);
-        const skip = (currentPage - 1) * limit;
-
-        const queryEmbedding = await getBedrockEmbedding(query || "trending videos");
-        const osResult = await openSearchClient.search({
-            index: 'videos',
-            body: {
-                size: 10,
-                query: {
-                    knn: {
-                        embedding: {
-                            vector: queryEmbedding,
-                            k: 10
-                        }
-                    }
+        const results = await Video.aggregate([
+            {
+                $vectorSearch: {
+                    index: "vector_index_videos",
+                    queryVector: queryEmbedding,
+                    path: "embedding",
+                    numCandidates: 100,
+                    limit: 10
+                }
+            },
+            {
+                $addFields: {
+                    score: { $meta: "vectorSearchScore" }
+                }
+            },
+            {
+                $match: {
+                    $or: [
+                        { title: { $regex: query, $options: 'i' } },
+                        { score: { $gte: 0.7 } }
+                    ]
                 }
             }
-        });
-        const videoIds = osResult.body.hits.hits.map(hit => hit._source.videoId);
-        const videos = await Video.find({_id: { $in: videoIds}}).populate('creator', 'name email');
-        const orderedVideos = videoIds.map(id => videos.find(video => video._id.toString() === id));
+        ]);
+        console.log("Related videos search results count:", results.length);
         res.json({
             success: true,
-            data: orderedVideos,
-            pagination: {
-                page: currentPage,
-                limit,
-                totalPages,
-                totalVideos,
-                hasPrevPage: currentPage > 1,
-                hasNextPage: currentPage < totalPages
-            },
-            message: "Fetched trending videos successfully"
+            data: results,
+            message: "Fetched related videos successfully"
         });
+
     } catch(err) {
-        console.error("Error fetching trending videos:", err);
+        console.error("Error fetching related videos:", err);
         res.status(500).json({
             success: false,
-            message: "Unable to fetch trending videos"
+            message: "Unable to fetch related videos"
         });
     }
-}
+};
