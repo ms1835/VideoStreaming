@@ -4,6 +4,7 @@ import Loader from "./Loader";
 import { AppContext } from "../context/AppContext";
 import { ToastContext } from "../context/ToastContext";
 import { useReaction } from "../context/ReactionContext";
+import Profile from "./../assets/profile.jpg";
 
 
 const Video = () => {
@@ -150,7 +151,12 @@ const Video = () => {
             <div key={comment._id} className="bg-gray-900 border border-gray-700 rounded-xl p-2 text-gray-200" style={{marginLeft: depth * 24}}>
                 <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-gray-900 flex items-center justify-center text-sm font-semibold text-gray-200">
-                        {comment.creator?.name?.charAt(0) || comment.creator?.email?.charAt(0) || 'U'}
+                        <img 
+                            src={Profile} 
+                            alt={comment.creator?.name || comment.creator?.email || 'User'} 
+                            className="w-8 h-8 sm:w-8 sm:h-8 md:h-8 md:w-8 lg:w-8 lg:h-8 rounded-full object-cover bg-gray-900"
+                            loading='lazy'
+                        />
                     </div>
                     <div className="flex-1">
                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -330,13 +336,18 @@ const Video = () => {
                 </video>
             </div>
 
-            <div className="mx-auto max-w-7xl p-3">
+            <div className="p-3 border-t-2 border-gray-800">
                 <div className="space-y-2">
                     <h1 className="text-xl md:text-2xl font-semibold text-white truncate" title={currentVideo.title}>{currentVideo.title}</h1>
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center text-lg font-semibold text-white">
-                                {currentCreator?.name?.charAt(0) || currentCreator?.email?.charAt(0) || 'U'}
+                                <img 
+                                    src={Profile} 
+                                    alt={currentCreator?.name?.charAt(0) || currentCreator?.email?.charAt(0) || 'U'} 
+                                    className="w-12 h-12 sm:w-12 sm:h-12 md:h-12 md:w-12 lg:w-12 lg:h-12 rounded-full object-cover bg-gray-900"
+                                    loading='lazy'
+                                />
                             </div>
                             <div className="min-w-0">
                                 <p className="truncate text-lg font-medium text-white">{currentCreator?.name || currentCreator?.email || 'Unknown creator'}</p>
