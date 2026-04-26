@@ -49,6 +49,7 @@ app.use(cors({
     credentials: true,
     
 }))
+app.options("*", cors());
 
 app.use(express.json());// (middleware) recognise incoming request object as json object
 app.use(express.urlencoded({extended:true}));
