@@ -56,7 +56,7 @@ const VideoCard = (props) => {
     <div className='absolute top-3 right-3'>
         <Toast></Toast>
     </div>
-    <div className="flex flex-col rounded overflow-hidden shadow-lg h-fit">
+    <div className="flex flex-col rounded overflow-hidden shadow-lg h-fit bg-gray-900">
         <div className='aspect-w-16 aspect-h-9'>
             <video id="video" className='w-full h-auto aspect-video object-cover' controls >
                 <source src={video.filePath}/>
@@ -65,14 +65,14 @@ const VideoCard = (props) => {
         <div className='flex flex-row p-3 gap-4'>
             <img className='rounded-full h-10 w-10' src={Profile} />
             <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/video/${video._id}`, { state: { video, creator: props?.creator }})}>
-                <div className="font-bold text-lg truncate" title={video.title}>{video?.title}</div>
-                    <p className="text-gray-700 text-base truncate-multiline" title={video.description}>{video.description}</p>
-                    <p className="text-gray-500 text-base text-sm" title={props?.creator?.name}>{props?.creator?.name}</p>
+                <div className="font-bold text-lg truncate text-gray-200" title={video.title}>{video?.title}</div>
+                    <p className="text-gray-200 text-base truncate-multiline" title={video.description}>{video.description}</p>
+                    <p className="text-gray-400 text-base text-sm" title={props?.creator?.name}>{props?.creator?.name}</p>
             </div>
             {/* <img src={Meatballs} className='h-4 w-4' /> */}
         </div>
         <div className={`flex mb-2 mx-2 ${props?.fromDashboard ? "justify-between" : "justify-end"}`}>
-            <span className="inline-block bg-rose-200 rounded-full px-3 py-1 text-sm text-slate-800">
+            <span className="inline-block bg-emerald-500 rounded-full px-3 py-1 text-sm text-gray-200">
                 Posted On: {date+"-"+month+"-"+year}
             </span>
             { props.fromDashboard &&

@@ -128,40 +128,40 @@ const Dashboard = () => {
       <div className='absolute top-3 right-3'>
         <Toast></Toast>
       </div>
-      <div className='flex flex-col m-8'>
-        <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-cyan-900 items-center">
+      <div className='flex flex-col m-8 text-gray-200'>
+        <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-gray-900 items-center">
           <div className='flex justify-center lg:justify-start'>
           <img
             src={Profile}
             alt="Profile"
-            className="w-24 h-24 sm:w-28 sm:h-28 md:h-32 md:w-32 lg:w-36 lg:h-36 rounded-full object-cover bg-red-800"
+            className="w-24 h-24 sm:w-28 sm:h-28 md:h-32 md:w-32 lg:w-36 lg:h-36 rounded-full object-cover bg-gray-900"
             loading='lazy'
           />
         </div>
           <div className="flex flex-col justify-between max-w-[80%]">
-            <h1 className="text-3xl text-white font-semibold">{channelOwner?.name || "Channel Name"}</h1>
+            <h1 className="text-3xl text-gray-200 font-semibold">{channelOwner?.name || "Channel Name"}</h1>
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-              <p className="text-white">Total Videos: {videos?.length || 0}</p>
-              <p className="text-white">Subscribers: {channelOwner?.subscribersCount || 0}</p>
+              <p className="text-gray-200">Total Videos: {videos?.length || 0}</p>
+              <p className="text-gray-200">Subscribers: {channelOwner?.subscribersCount || 0}</p>
               {userData && userData._id !== channelOwner?._id && (
                 <button
                   onClick={subscribeChannel}
-                  className={`${isSubscribed ? "bg-rose-500" : "bg-slate-500 hover:bg-slate-600"} text-white px-4 py-2 rounded-full`}
+                  className={`${isSubscribed ? "bg-emerald-500" : "bg-gray-900 hover:bg-gray-800"} text-gray-200 px-4 py-2 rounded-full`}
                 >
                   {isSubscribed ? "Subscribed" : "Subscribe"}
                 </button>
               )}
             </div>
 
-            <p className="text-white mt-2">
+            <p className="text-gray-200 mt-2">
             Get ready for non-stop entertainment and laughter! FunFlix is your ultimate destination for hilarious
             comedy sketches, heartwarming short films, and thrilling movie reviews. Join us as we bring joy and
               excitement into your day!
             </p>
           </div>
         </div>
-        <div className='border border-2 border-pink-800 my-4 sm:my-8 md:my-16' />
+        <div className='border border-2 border-emerald-500 my-4 sm:my-8 md:my-16' />
         <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
           {videos.map((video, index) => (
             <Suspense fallback={<Loader />}>

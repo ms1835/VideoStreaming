@@ -59,7 +59,7 @@ const Home = () => {
             }
             setVideos(response.data || []);
             setPage(1);
-            setTotalPages(response.pagination?.totalPages || 1);
+            setTotalPages(response?.pagination?.totalPages || 1);
         } catch (error) {
             console.log(error);
             addToast({ type: 'error', message: error.message });
@@ -94,17 +94,17 @@ const Home = () => {
                 <div className='absolute top-3 right-3'>
                     <Toast></Toast>
                 </div>
-                <div className='px-4 md:px-16 py-8'>
+                <div className='p-8 text-gray-200'>
                     <form onSubmit={handleSearch} className='mb-6 flex flex-col sm:flex-row gap-3'>
                         <input
                             type='text'
                             placeholder='Search videos by title or description...'
-                            className='w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500'
+                            className='w-full border border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-900 text-gray-200'
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <button type='submit' className='px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700'>Search</button>
-                        <button type='button' onClick={handleClearSearch} className='px-4 py-2 bg-gray-300 text-slate-800 rounded hover:bg-gray-400'>Clear</button>
+                        <button type='submit' className='px-4 py-2 bg-emerald-500 text-gray-200 rounded hover:bg-emerald-600'>Search</button>
+                        <button type='button' onClick={handleClearSearch} className='px-4 py-2 bg-gray-900 text-gray-200 rounded hover:bg-gray-800'>Clear</button>
                     </form>
 
                     <div className="w-full overflow-x-hidden overflow-y-auto">
@@ -112,7 +112,7 @@ const Home = () => {
                             {videos.length > 0 ? videos.map((video, index) => (
                                 <VideoCard key={index} video={video} fromDashboard={false} />
                             )) : (
-                                <div className='col-span-full text-center text-gray-600'>No videos found.</div>
+                                <div className='col-span-full text-center text-gray-200'>No videos found.</div>
                             )}
                         </div>
                     </div>
@@ -121,13 +121,13 @@ const Home = () => {
                         <button
                             disabled={page <= 1}
                             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                            className='px-4 py-2 rounded bg-slate-200 disabled:opacity-50'
+                            className='px-4 py-2 rounded bg-gray-900 text-gray-200 disabled:opacity-50 hover:bg-gray-800'
                         >Previous</button>
-                        <span>Page {page} of {totalPages}</span>
+                        <span className='text-gray-200'>Page {page} of {totalPages}</span>
                         <button
                             disabled={page >= totalPages}
                             onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                            className='px-4 py-2 rounded bg-slate-200 disabled:opacity-50'
+                            className='px-4 py-2 rounded bg-gray-900 text-gray-200 disabled:opacity-50 hover:bg-gray-800'
                         >Next</button>
                     </div>
                 </div>
