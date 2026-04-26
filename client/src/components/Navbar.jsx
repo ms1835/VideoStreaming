@@ -60,7 +60,7 @@ const Navbar = () => {
                 <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
               </svg>
             </button>
-            <button class="flex items-center space-x-3 rtl:space-x-reverse">
+            <button onClick={() => navigate('/')} class="flex items-center space-x-3 rtl:space-x-reverse hover:opacity-80 transition-opacity">
                 <img src="/icon.png" class="h-8" alt="Logo" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">Vines</span>
             </button>
@@ -73,28 +73,25 @@ const Navbar = () => {
           </button>
           <div class="hidden w-full md:block md:w-auto text-white" id="navbar-default">
             <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 bg-gray-900 md:bg-transparent">
-              <li>
-                <button onClick={() => navigate('/')} class={`${activeLink === "home" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`} aria-current="page">Home</button>
-              </li>
               { !isLoggedIn ?
               <>
                 <li>
-                    <button onClick={() => navigate('/auth/login')} class={`${activeLink === "login" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`}>Sign In</button>
+                    <button onClick={() => navigate('/auth/login')} class={`${activeLink === "login" ? "text-emerald-400" : "text-white"} block py-2 px-3 rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-gray-200 md:p-0 hover:text-gray-200 md:hover:bg-transparent transition-colors`}>Sign In</button>
                 </li>
                 <li>
-                    <button onClick={() => navigate('/auth/signup')} class={`${activeLink === "signup" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`}>Sign Up</button>
+                    <button onClick={() => navigate('/auth/signup')} class={`${activeLink === "signup" ? "text-emerald-400" : "text-white"} block py-2 px-3 rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-gray-200 md:p-0 hover:text-gray-200 md:hover:bg-transparent transition-colors`}>Sign Up</button>
                 </li>
               </> 
               :
               <>
                 <li>
-                    <button onClick={() => navigate('/user')} class={`${activeLink === "dashboard" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`}>Dashboard</button>
+                    <button onClick={() => navigate('/user')} class={`${activeLink === "dashboard" ? "text-emerald-400" : "text-white"} block py-2 px-3 rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-gray-200 md:p-0 hover:text-gray-200 md:hover:bg-transparent transition-colors`}>Dashboard</button>
                 </li>
                 <li>
-                    <button onClick={handleSignOut} class={`${activeLink === "logout" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`}>Sign Out</button>
+                    <button onClick={handleSignOut} class={`${activeLink === "logout" ? "text-emerald-400" : "text-white"} block py-2 px-3 rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-gray-200 md:p-0 hover:text-gray-200 md:hover:bg-transparent transition-colors`}>Sign Out</button>
                 </li>
                 <li>
-                    <button onClick={() => navigate('/video/upload')} class={`${activeLink === "create" ? "text-blue-700" : "text-white"} block py-2 px-3 text-white rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:hover:text-blue-500 hover:text-gray-200 md:hover:bg-transparent`}>Create</button>
+                    <button onClick={() => navigate('/video/upload')} class={`${activeLink === "create" ? "text-emerald-400" : "text-white"} block py-2 px-3 rounded hover:bg-gray-800 md:hover:bg-transparent md:border-0 md:hover:text-gray-200 md:p-0 hover:text-gray-200 md:hover:bg-transparent transition-colors`}>Create</button>
                 </li>
                 {/* <li>
             <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
@@ -110,17 +107,15 @@ const Navbar = () => {
         
         <div class={`md:hidden ${showPanel ? "block" : "hidden"}`} id="mobile-menu">
           <div class="space-y-1 px-2 pb-3 pt-2">
-            {/* <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" --> */}
-            <button onClick={() => {navigate('/'); handlePanel()}} class={`w-full ${activeLink === "home" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium" aria-current="page`}>Home</button>
             { !isLoggedIn ?
               <>
-            <button onClick={() => {navigate('/auth/login'); handlePanel()}} class={`w-full ${activeLink === "login" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium`}>Sign In</button>
-            <button onClick={() => {navigate('/auth/signup'); handlePanel()}} class={`w-full ${activeLink === "signup" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium`}>Sign Up</button>
+            <button onClick={() => {navigate('/auth/login'); handlePanel()}} class={`w-full ${activeLink === "login" ? "bg-emerald-600 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium transition-colors`}>Sign In</button>
+            <button onClick={() => {navigate('/auth/signup'); handlePanel()}} class={`w-full ${activeLink === "signup" ? "bg-emerald-600 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium transition-colors`}>Sign Up</button>
             </> :
             <>
-            <button onClick={() => {navigate('/user'); handlePanel()}} class={`w-full ${activeLink === "dashboard" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium`}>Dashboard</button>
-            <button onClick={() => handleSignOut(true)} class={`w-full ${activeLink === "logout" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium`}>Sign Out</button>
-            <button onClick={() => {navigate('/video/upload'); handlePanel()}} class={`w-full ${activeLink === "create" ? "bg-gray-900 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium`}>Create</button>
+            <button onClick={() => {navigate('/user'); handlePanel()}} class={`w-full ${activeLink === "dashboard" ? "bg-emerald-600 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium transition-colors`}>Dashboard</button>
+            <button onClick={() => handleSignOut(true)} class={`w-full ${activeLink === "logout" ? "bg-emerald-600 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium transition-colors`}>Sign Out</button>
+            <button onClick={() => {navigate('/video/upload'); handlePanel()}} class={`w-full ${activeLink === "create" ? "bg-emerald-600 text-white" : "text-white hover:bg-gray-800" } block rounded-md px-3 py-2 text-base font-medium transition-colors`}>Create</button>
             </>
             }
             </div>

@@ -19,6 +19,13 @@ const Video = () => {
     const [replyingTo, setReplyingTo] = useState(null);
     const userID = localStorage.getItem('token') || null;
     const { addToast } = useContext(ToastContext);
+
+    const handleCommentChange = (event) => {
+        const textarea = event.target;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+        setCommentText(textarea.value);
+    };
     const { reaction, handleReaction } = useReaction();
     const { userData } = useContext(AppContext);
     const [isSubscribed, setIsSubscribed] = useState(false);
@@ -140,7 +147,7 @@ const Video = () => {
 
     const renderComments = (items, depth = 0) => {
         return items.map(comment => (
-            <div key={comment._id} className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-4 text-gray-200" style={{marginLeft: depth * 24}}>
+            <div key={comment._id} className="bg-gray-900 border border-gray-700 rounded-xl p-2 text-gray-200" style={{marginLeft: depth * 24}}>
                 <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-gray-900 flex items-center justify-center text-sm font-semibold text-gray-200">
                         {comment.creator?.name?.charAt(0) || comment.creator?.email?.charAt(0) || 'U'}
@@ -154,12 +161,12 @@ const Video = () => {
                             <button
                                 type="button"
                                 onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id)}
-                                className="text-sm text-emerald-500 hover:text-emerald-600"
+                                className="text-sm text-emerald-500 hover:text-emerald-600 hover:bg-gray-800 p-2 rounded-lg"
                             >
                                 Reply
                             </button>
                         </div>
-                        <p className="mt-3 text-gray-200 whitespace-pre-line">{comment.content}</p>
+                        <p className="mt-1 text-gray-200 whitespace-pre-line">{comment.content}</p>
                         {replyingTo === comment._id && (
                             <div className="mt-4">
                                 <textarea
@@ -316,74 +323,99 @@ const Video = () => {
     return (
         loading ? <Loader /> :
         currentVideo ? (
-        <div>
-            <video id="video" className='w-screen h-screen' controls >
-                <source src={currentVideo.filePath}/>
-            </video>
-
-            <div className="px-6 py-2 text-gray-200">
-                <div className="font-bold text-xl mb-2 truncate" title={currentVideo.title}>{currentVideo.title}</div>
-                <p className="text-gray-200 text-base truncate-multiline" title={currentVideo.description}>{currentVideo.description}</p>
+        <div className="min-h-screen bg-slate-950 text-gray-200">
+            <div className="w-full bg-black">
+                <video id="video" className="w-full h-[65vh] min-h-[360px] object-cover" controls>
+                    <source src={currentVideo.filePath}/>
+                </video>
             </div>
-            <div className="flex flex-row justify-between px-6 py-1 text-gray-200">
-                <div className="flex justify-start items-center gap-2">
-                    <p className="font-bold text-lg">{currentCreator?.name}</p>
-                    <p className="text-gray-400 text-sm">{currentCreator?.subscribersCount || 0} subscriber</p>
+
+            <div className="mx-auto max-w-7xl p-3">
+                <div className="space-y-2">
+                    <h1 className="text-xl md:text-2xl font-semibold text-white truncate" title={currentVideo.title}>{currentVideo.title}</h1>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center text-lg font-semibold text-white">
+                                {currentCreator?.name?.charAt(0) || currentCreator?.email?.charAt(0) || 'U'}
+                            </div>
+                            <div className="min-w-0">
+                                <p className="truncate text-lg font-medium text-white">{currentCreator?.name || currentCreator?.email || 'Unknown creator'}</p>
+                                <p className="text-sm text-gray-400">{currentCreator?.subscribersCount || 0} subscribers</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+
+                            <button type="button" onClick={likeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-emerald-600`}>
+                            <span>{currentVideo.likes}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+                            </svg>
+                            </button>
+                            <button type="button" onClick={dislikeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-gray-800`}>
+                                <span>{currentVideo.unlikes}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
+                                </svg>
+                            </button>
+                            <button type="button" onClick={subscribeChannel} className={`${isSubscribed ? 'bg-emerald-500' : 'bg-slate-900 hover:bg-gray-800'} rounded-full px-4 py-2 text-sm font-semibold text-gray-200 transition`}>
+                                {isSubscribed ? 'Subscribed' : 'Subscribe'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex justify-end items-center flex-wrap gap-2">
-                    <span onClick={likeVideo} className={`${isLoggedIn ? "cursor-pointer" : ''} inline-flex bg-emerald-500 rounded-full px-3 py-1 text-sm font-semibold text-gray-200`}> {currentVideo.likes}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="ml-2 w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
-                        </svg>
-                    </span>
-                    <span onClick={dislikeVideo} className={`${isLoggedIn ? "cursor-pointer" : ''} inline-flex bg-gray-900 rounded-full px-3 py-1 text-sm font-semibold text-gray-200`}> {currentVideo.unlikes}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="ml-2 w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
-                        </svg>
-                    </span>
-                    <button onClick={subscribeChannel} className={`${isSubscribed ? "bg-emerald-500" : "bg-gray-900 hover:bg-gray-800"} text-gray-200 px-3 py-1 rounded-full`}>
-                        {isSubscribed ? "Subscribed" : "Subscribe"}
-                    </button>
+            </div>
+
+            <div className="space-y-4 p-3">
+                <div className="rounded-2xl border border-gray-800 bg-slate-900 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-400">
+                        <span>Posted on: {date + '-' + month + '-' + year}</span>
+                    </div>
+                    <p className="mt-1 text-gray-300 leading-relaxed">{currentVideo.description || 'No description provided.'}</p>
                 </div>
-            </div>
 
-            <div className="px-6 pb-4 flex">
-                <span className="inline-block bg-emerald-500 rounded-full px-3 py-1 text-sm font-semibold text-gray-200">
-                    Posted On: {date + "-" + month + "-" + year}
-                </span>
-            </div>
-
-            <div className="px-6 py-4 border-t border-gray-700 text-gray-200">
-                <div className="mb-4 flex flex-col gap-3">
+                <div className="rounded-2xl border border-gray-800 bg-slate-900 p-6 space-y-5">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold">Comments ({comments.length})</h2>
                     </div>
+
                     {isLoggedIn ? (
-                        <form onSubmit={handleCommentSubmit} className="space-y-3">
+                        <form onSubmit={handleCommentSubmit} className="space-y-1">
                             <textarea
                                 value={commentText}
-                                onChange={(e) => setCommentText(e.target.value)}
-                                className="w-full rounded-xl border border-gray-700 p-3 focus:border-emerald-500 focus:outline-none bg-gray-900 text-gray-200"
-                                rows={4}
-                                placeholder="Add a public comment"
+                                onChange={handleCommentChange}
+                                onInput={handleCommentChange}
+                                className="w-full min-h-[52px] resize-none rounded-2xl border border-gray-700 bg-slate-950 px-4 py-4 text-sm text-gray-200 placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none"
+                                rows={1}
+                                placeholder="Share your thoughts"
                             />
-                            <button
-                                type="submit"
-                                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-emerald-600"
-                            >
-                                Post Comment
-                            </button>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setCommentText("")}
+                                    className="rounded-full border border-gray-700 bg-slate-950 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-emerald-600"
+                                >
+                                    Comment
+                                </button>
+                            </div>
                         </form>
                     ) : (
                         <p className="text-sm text-gray-400">Sign in to add a comment.</p>
                     )}
-                </div>
 
-                {comments.length === 0 ? (
-                    <p className="text-gray-400">No comments yet. Be the first to share your thoughts.</p>
-                ) : (
-                    renderComments(comments)
-                )}
+                    {comments.length === 0 ? (
+                        <p className="text-gray-400">No comments yet. Be the first to share your thoughts.</p>
+                    ) : (
+                        <div className="space-y-1">
+                            {renderComments(comments)}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
         ) : <></>

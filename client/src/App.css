@@ -4,6 +4,44 @@
   box-sizing: border-box;
 }
 
+html, body, #root {
+  height: 100%;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.navbar-container {
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.main-content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.main-content-wrapper > aside {
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.footer-container {
+  flex-shrink: 0;
+  z-index: 40;
+}
+
 .truncate-multiline {
   overflow: hidden;
   text-overflow: ellipsis;

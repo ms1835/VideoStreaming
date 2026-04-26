@@ -4,7 +4,7 @@ import Loader from './Loader';
 import { ToastContext } from '../context/ToastContext';
 import Toast from './Message';
 
-const Home = () => {
+const Home = ({ setPaginationData }) => {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -76,6 +76,16 @@ const Home = () => {
         }
     }, [page, searchQuery]);
 
+    useEffect(() => {
+        if (setPaginationData) {
+            setPaginationData({
+                page,
+                totalPages,
+                onPageChange: setPage
+            });
+        }
+    }, [page, totalPages, setPaginationData]);
+
     const handleSearch = (event) => {
         event.preventDefault();
         setPage(1);
@@ -107,7 +117,7 @@ const Home = () => {
                         <button type='button' onClick={handleClearSearch} className='px-4 py-2 bg-gray-900 text-gray-200 rounded hover:bg-gray-800'>Clear</button>
                     </form>
 
-                    <div className="w-full overflow-x-hidden overflow-y-auto">
+                    <div className="w-full">
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
                             {videos.length > 0 ? videos.map((video, index) => (
                                 <VideoCard key={index} video={video} fromDashboard={false} />
@@ -117,19 +127,6 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div className='mt-8 flex items-center justify-center gap-3'>
-                        <button
-                            disabled={page <= 1}
-                            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                            className='px-4 py-2 rounded bg-gray-900 text-gray-200 disabled:opacity-50 hover:bg-gray-800'
-                        >Previous</button>
-                        <span className='text-gray-200'>Page {page} of {totalPages}</span>
-                        <button
-                            disabled={page >= totalPages}
-                            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                            className='px-4 py-2 rounded bg-gray-900 text-gray-200 disabled:opacity-50 hover:bg-gray-800'
-                        >Next</button>
-                    </div>
                 </div>
             </>
     )
