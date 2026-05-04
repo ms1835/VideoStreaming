@@ -50,6 +50,10 @@ const videoSchema= new mongoose.Schema({
     embedding: {
         type: [Number],
         index: false
+    },
+    tags: {
+        type: [String],
+        default: []
     }
 }, {timestamps:true});
 
