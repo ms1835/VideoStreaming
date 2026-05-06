@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import { AppContext } from "../context/AppContext";
 import { ToastContext } from "../context/ToastContext";
@@ -18,8 +18,11 @@ const Video = () => {
     const [commentText, setCommentText] = useState("");
     const [replyText, setReplyText] = useState({});
     const [replyingTo, setReplyingTo] = useState(null);
+    const [recommendedVideos, setRecommendedVideos] = useState([]);
+    const [showDetails, setShowDetails] = useState(false);
     const userID = localStorage.getItem('token') || null;
     const { addToast } = useContext(ToastContext);
+    const navigate = useNavigate();
 
     const handleCommentChange = (event) => {
         const textarea = event.target;
@@ -68,6 +71,21 @@ const Video = () => {
             console.log(err);
         }
     },[id]);
+
+    const getRecommendedVideos = useCallback(async () => {
+        try {
+            const responseRaw = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/recommend/${id}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const response = await responseRaw.json();
+            if (response.success) {
+                setRecommendedVideos(response.data || []);
+            }
+        } catch (err) {
+            console.log("Error loading recommended videos:", err);
+        }
+    }, [id]);
 
     const handleCommentSubmit = async (event) => {
         event.preventDefault();
@@ -218,7 +236,7 @@ const Video = () => {
                 addToast({type: "error", message: "User not authenticated"})
                 return;
             }
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/like/${userID}`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/like/${userID}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -244,7 +262,7 @@ const Video = () => {
                 addToast({type: "error", message: "User not authenticated"})
                 return;
             }
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${video._id}/unlike/${userID}`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/unlike/${userID}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -323,111 +341,155 @@ const Video = () => {
     },[getVideoDetails, getComments, reaction]);
 
     useEffect(() => {
+        getRecommendedVideos();
+    }, [getRecommendedVideos, currentVideo?._id]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 100) {
+                setShowDetails(true);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    useEffect(() => {
         checkSubscriptionStatus(currentVideo?.creator?._id);
     }, [currentVideo?.creator?._id, userID]);
 
     return (
         loading ? <Loader /> :
         currentVideo ? (
-        <div className="min-h-screen bg-slate-950 text-gray-200">
-            <div className="w-full bg-black">
-                <video id="video" className="w-full h-[65vh] min-h-[360px] object-cover" controls>
-                    <source src={currentVideo.filePath}/>
-                </video>
-            </div>
+        <div className="min-h-screen bg-slate-950 text-gray-200 flex flex-col lg:flex-row">
+            <div className="lg:w-[70%]">
+                <div className="w-full bg-transparent p-2">
+                    <video id="video" className="w-full h-[65vh] min-h-[360px] object-cover rounded-xl" controls>
+                        <source src={currentVideo.filePath}/>
+                    </video>
+                </div>
 
-            <div className="p-3 border-t-2 border-gray-800">
-                <div className="space-y-2">
-                    <h1 className="text-xl md:text-2xl font-semibold text-white truncate" title={currentVideo.title}>{currentVideo.title}</h1>
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center text-lg font-semibold text-white">
-                                <img 
-                                    src={Profile} 
-                                    alt={currentCreator?.name?.charAt(0) || currentCreator?.email?.charAt(0) || 'U'} 
-                                    className="w-12 h-12 sm:w-12 sm:h-12 md:h-12 md:w-12 lg:w-12 lg:h-12 rounded-full object-cover bg-gray-900"
-                                    loading='lazy'
-                                />
+                <div className="p-3 border-t-2 border-gray-800">
+                    <div className="space-y-2">
+                        <h1 className="text-xl md:text-2xl font-semibold text-white truncate" title={currentVideo.title}>{currentVideo.title}</h1>
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center text-lg font-semibold text-white">
+                                    <img 
+                                        src={Profile} 
+                                        alt={currentCreator?.name?.charAt(0) || currentCreator?.email?.charAt(0) || 'U'} 
+                                        className="w-12 h-12 sm:w-12 sm:h-12 md:h-12 md:w-12 lg:w-12 lg:h-12 rounded-full object-cover bg-gray-900"
+                                        loading='lazy'
+                                    />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="truncate text-lg font-medium text-white">{currentCreator?.name || currentCreator?.email || 'Unknown creator'}</p>
+                                    <p className="text-sm text-gray-400">{currentCreator?.subscribersCount || 0} subscribers</p>
+                                </div>
                             </div>
-                            <div className="min-w-0">
-                                <p className="truncate text-lg font-medium text-white">{currentCreator?.name || currentCreator?.email || 'Unknown creator'}</p>
-                                <p className="text-sm text-gray-400">{currentCreator?.subscribersCount || 0} subscribers</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
 
-                            <button type="button" onClick={likeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-emerald-600`}>
-                            <span>{currentVideo.likes}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
-                            </svg>
-                            </button>
-                            <button type="button" onClick={dislikeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-gray-800`}>
-                                <span>{currentVideo.unlikes}</span>
+                                <button type="button" onClick={likeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-emerald-600`}>
+                                <span>{currentVideo.likes}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
                                 </svg>
-                            </button>
-                            <button type="button" onClick={subscribeChannel} className={`${isSubscribed ? 'bg-emerald-500' : 'bg-slate-900 hover:bg-gray-800'} rounded-full px-4 py-2 text-sm font-semibold text-gray-200 transition`}>
-                                {isSubscribed ? 'Subscribed' : 'Subscribe'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-4 p-3">
-                <div className="rounded-2xl border border-gray-800 bg-slate-900 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-400">
-                        <span>Posted on: {date + '-' + month + '-' + year}</span>
-                    </div>
-                    <p className="mt-1 text-gray-300 leading-relaxed">{currentVideo.description || 'No description provided.'}</p>
-                </div>
-
-                <div className="rounded-2xl border border-gray-800 bg-slate-900 p-6 space-y-5">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">Comments ({comments.length})</h2>
-                    </div>
-
-                    {isLoggedIn ? (
-                        <form onSubmit={handleCommentSubmit} className="space-y-1">
-                            <textarea
-                                value={commentText}
-                                onChange={handleCommentChange}
-                                onInput={handleCommentChange}
-                                className="w-full min-h-[52px] resize-none rounded-2xl border border-gray-700 bg-slate-950 px-4 py-4 text-sm text-gray-200 placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none"
-                                rows={1}
-                                placeholder="Share your thoughts"
-                            />
-                            <div className="flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setCommentText("")}
-                                    className="rounded-full border border-gray-700 bg-slate-950 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800"
-                                >
-                                    Cancel
                                 </button>
-                                <button
-                                    type="submit"
-                                    className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-emerald-600"
-                                >
-                                    Comment
+                                <button type="button" onClick={dislikeVideo} className={`${isLoggedIn ? 'cursor-pointer' : 'opacity-80'} inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-gray-800`}>
+                                    <span>{currentVideo.unlikes}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
+                                    </svg>
+                                </button>
+                                <button type="button" onClick={subscribeChannel} className={`${isSubscribed ? 'bg-emerald-500' : 'bg-slate-900 hover:bg-gray-800'} rounded-full px-4 py-2 text-sm font-semibold text-gray-200 transition`}>
+                                    {isSubscribed ? 'Subscribed' : 'Subscribe'}
                                 </button>
                             </div>
-                        </form>
-                    ) : (
-                        <p className="text-sm text-gray-400">Sign in to add a comment.</p>
-                    )}
-
-                    {comments.length === 0 ? (
-                        <p className="text-gray-400">No comments yet. Be the first to share your thoughts.</p>
-                    ) : (
-                        <div className="space-y-1">
-                            {renderComments(comments)}
                         </div>
-                    )}
+                    </div>
+                </div>
+
+                <div className="space-y-4 p-3">
+                    <div className="rounded-2xl border border-gray-800 bg-slate-900 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-400">
+                            <span>Posted on: {date + '-' + month + '-' + year}</span>
+                        </div>
+                        <p className="mt-1 text-gray-300 leading-relaxed">{currentVideo.description || 'No description provided.'}</p>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-800 bg-slate-900 p-6 space-y-5">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Comments ({comments.length})</h2>
+                        </div>
+
+                        {isLoggedIn ? (
+                            <form onSubmit={handleCommentSubmit} className="space-y-1">
+                                <textarea
+                                    value={commentText}
+                                    onChange={handleCommentChange}
+                                    onInput={handleCommentChange}
+                                    className="w-full min-h-[52px] resize-none rounded-2xl border border-gray-700 bg-slate-950 px-4 py-4 text-sm text-gray-200 placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none"
+                                    rows={1}
+                                    placeholder="Share your thoughts"
+                                />
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCommentText("")}
+                                        className="rounded-full border border-gray-700 bg-slate-950 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-200 hover:bg-emerald-600"
+                                    >
+                                        Comment
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <p className="text-sm text-gray-400">Sign in to add a comment.</p>
+                        )}
+
+                        {comments.length === 0 ? (
+                            <p className="text-gray-400">No comments yet. Be the first to share your thoughts.</p>
+                        ) : (
+                            <div className="space-y-1">
+                                {renderComments(comments)}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
+            <aside className="lg:w-[30%] space-y-3">
+                <div className="p-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold">Recommended</h2>
+                    </div>
+                    <div className="mt-4 space-y-3">
+                        {recommendedVideos.length > 0 ? recommendedVideos.map(recommended => (
+                            <div
+                                key={recommended._id}
+                                onClick={() => navigate(`/video/${recommended._id}`, { state: { video: recommended, creator: recommended.creator } })}
+                                className="flex cursor-pointer gap-3 rounded-xl border border-gray-800 bg-slate-950 p-2 transition hover:border-emerald-200"
+                            >
+                                <div className="h-24 w-36 overflow-hidden rounded-lg bg-black border border-gray-900">
+                                    <video className="h-full w-full object-cover" src={recommended.filePath} muted preload="metadata" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="line-clamp-2 text-sm font-semibold text-white" title={recommended.title}>{recommended.title}</p>
+                                    <p className="mt-2 text-xs text-gray-400 line-clamp-2" title={recommended.description}>{recommended.description || 'No description'}</p>
+                                    <p className="mt-3 text-xs text-gray-300">{recommended.creator?.name || recommended.creator?.email || 'Unknown creator'}</p>
+                                </div>
+                            </div>
+                        )) : (
+                            <p className="text-sm text-gray-400">No recommended videos available yet.</p>
+                        )}
+                    </div>
+                </div>
+            </aside>
         </div>
         ) : <></>
     )

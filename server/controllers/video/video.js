@@ -10,9 +10,38 @@ import { getEmbedding } from '../../embedding.js';
 // import qdrant from '../../qdrant.js';
 import {  indexVideoByAtlas } from '../../indexOSVideo.js';
 import { getBedrockEmbedding } from "../../bedrock.js";
+import { generateVideoMetaData } from '../../aiGenerator.js';
 // import { openSearchClient } from "../../openSearch.js";
 
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
+
+// Generate metadata (tags and description) for a video based on title
+export const generateMetadata = async(req, res) => {
+    try {
+        const { title } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Video title is required to generate metadata"
+            });
+        }
+
+        const metaData = await generateVideoMetaData(title.trim());
+        
+        res.json({
+            success: true,
+            data: metaData,
+            message: "Metadata generated successfully"
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to generate metadata"
+        });
+    }
+}
 
 // To upload video
 export const uploadVideo = async(req,res) => {
@@ -20,7 +49,7 @@ export const uploadVideo = async(req,res) => {
         // console.log(req.session.user);
         console.log("Request body: ",req.body);
         const userID = req.params.userID;
-        const {title,description} = req.body;
+        const {title,description,tags} = req.body;
         const video = req.files.video.tempFilePath;
 
         if(req.files.video.size > MAX_VIDEO_SIZE){
@@ -44,6 +73,7 @@ export const uploadVideo = async(req,res) => {
         const newVideo={
             title,
             description,
+            tags: tags ? JSON.parse(tags) : [], // Parse tags from FormData string
             creator: userID, // req.session.user._id,
             filePath: cloud.secure_url,
             fileType: req.files.video.mimetype
@@ -633,3 +663,52 @@ export const relatedVideos = async(req, res) => {
         });
     }
 };
+
+export const getRecommendedVideos = async(req, res) => {
+    try {
+        const { videoId } = req.params;
+        const currentVideo = await Video.findById(videoId);
+        if(!currentVideo || !currentVideo?.embedding){
+            return res.status(404).json({
+                success: false,
+                message: "Video not found or does not have embedding for recommendations"
+            })
+        }
+        const recommendedVideos = await Video.aggregate([
+            {
+                $vectorSearch: {
+                    index: "vector_index_videos",
+                    path: "embedding",
+                    queryVector: currentVideo.embedding,
+                    numCandidates: 100,
+                    limit: 20
+                }
+            },
+            {
+                $match: {
+                    _id: { $ne: currentVideo._id}
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    description: 1,
+                    filePath: 1,
+                    creator: 1,
+                    score: { $meta: "vectorSearchScore"}
+                }
+            }
+        ])
+        res.status(200).json({
+            success: true,
+            data: recommendedVideos
+        })
+        
+    } catch(err) {
+        console.error("Error fetching recommended videos:", err);
+        res.status(500).json({
+            success: false,
+            message: "Unable to fetch recommended videos"
+        });
+    }
+}

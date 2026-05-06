@@ -10,14 +10,53 @@ const UploadVideo = () => {
     const userID = localStorage.getItem('token') || null;
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [tags, setTags] = useState([]);
     const [video, setVideo] = useState(null);
     const { addToast } = useContext(ToastContext);
     const [loading, setLoading] = useState(false);
+    const [generatingMetadata, setGeneratingMetadata] = useState(false);
 
     const handleChange = (event) => {
         const file = event.target.files[0];
         console.log("File uploaded: ", file);
         setVideo(file);
+    }
+
+    const handleGenerateMetadata = async(e) => {
+        e.preventDefault();
+        try {
+            if (!title.trim()) {
+                addToast({type: "error", message: "Please enter a title first"});
+                return;
+            }
+
+            setGeneratingMetadata(true);
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/generate-metadata`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ title: title.trim() })
+            })
+            const response = await rawData.json();
+            console.log("Metadata response:", response);
+            
+            if(response.success){
+                const { description: generatedDescription, tags: generatedTags } = response.data;
+                setDescription(generatedDescription);
+                setTags(generatedTags);
+                addToast({type: "success", message: "Metadata generated successfully! You can modify the description if needed."});
+            }
+            else{
+                addToast({type: "error", message: response.message})
+            }
+        } catch(error) {
+            console.log(error);
+            addToast({type: "error", message: error.message});
+        } finally {
+            setGeneratingMetadata(false);
+        }
     }
 
     const handleSubmit = async(e) => {
@@ -26,6 +65,7 @@ const UploadVideo = () => {
             const myForm = new FormData();
             myForm.append('title', title);
             myForm.append('description', description);
+            myForm.append('tags', JSON.stringify(tags));
             myForm.append('video', video);
 
             for (let [key, value] of myForm.entries()) {
@@ -42,6 +82,10 @@ const UploadVideo = () => {
             if(response.success){
                 addToast({type: "success", message: response.message});
                 setUserData({title:'',description:'',video:null});
+                setTitle('');
+                setDescription('');
+                setTags([]);
+                setVideo(null);
                 navigate('/user');
             }
             else{
@@ -83,6 +127,16 @@ const UploadVideo = () => {
             </label>
         </div>
         <div class="relative z-0 w-full mb-5 group">
+            <button 
+                type="button" 
+                onClick={handleGenerateMetadata}
+                disabled={generatingMetadata || !title.trim()}
+                class="w-full text-gray-900 bg-gray-400 hover:bg-gray-500 disabled:bg-gray-600 disabled:cursor-not-allowed focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-4"
+            >
+                {generatingMetadata ? "Generating..." : "Generate Tags & Description"}
+            </button>
+        </div>
+        <div class="relative z-0 w-full mb-5 group">
             <input 
                 type="text" 
                 name="description" 
@@ -98,6 +152,18 @@ const UploadVideo = () => {
             >
                 Description
             </label>
+            {tags.length > 0 && (
+                <div className="mt-3 text-gray-300">
+                    <p className="text-sm font-semibold text-gray-400">Generated Tags:</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {tags.map((tag, index) => (
+                            <span key={index} className="px-3 py-1 text-xs font-medium bg-emerald-500 text-gray-900 rounded-full">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
         <div class="relative z-0 w-full mb-5 group">
             <input 

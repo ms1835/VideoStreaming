@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer'; // node.js middleware for handling multipart/form-data,primarily used for uploading files
-import { uploadVideo, renderUploadVideoForm, likeVideo, unlikeVideo, videoById, deleteVideo, createComment, getCommentsByVideo } from '../controllers/video/video.js';
+import { uploadVideo, renderUploadVideoForm, likeVideo, unlikeVideo, videoById, deleteVideo, createComment, getCommentsByVideo, generateMetadata, getRecommendedVideos } from '../controllers/video/video.js';
 import { isLoggedIn } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -29,6 +29,8 @@ router.get('/:id', videoById);
 /*----------------------
   POST ROUTES
 ------------------------*/
+router.post('/generate-metadata', generateMetadata);
+router.get('/recommend/:videoId', getRecommendedVideos);
 router.post('/:id/comment', createComment);
 router.post('/:userID',uploadVideo); // restore middleware and route
 router.post('/:id/like/:userID',likeVideo);  // restore middleware and route
