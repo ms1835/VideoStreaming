@@ -481,7 +481,7 @@ const Video = () => {
                                 <div className="min-w-0 flex-1">
                                     <p className="line-clamp-2 text-sm font-semibold text-white" title={recommended.title}>{recommended.title}</p>
                                     <p className="mt-2 text-xs text-gray-400 line-clamp-2" title={recommended.description}>{recommended.description || 'No description'}</p>
-                                    <p className="mt-3 text-xs text-gray-300">{recommended.creator?.name || recommended.creator?.email || 'Unknown creator'}</p>
+                                    {/* <p className="mt-3 text-xs text-gray-300">{recommended.creator?.name || recommended.creator?.email || 'Unknown creator'}</p> */}
                                 </div>
                             </div>
                         )) : (
