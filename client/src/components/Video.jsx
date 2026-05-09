@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import { AppContext } from "../context/AppContext";
@@ -20,7 +20,6 @@ const Video = () => {
     const [replyingTo, setReplyingTo] = useState(null);
     const [recommendedVideos, setRecommendedVideos] = useState([]);
     const [showDetails, setShowDetails] = useState(false);
-    const userID = localStorage.getItem('token') || null;
     const { addToast } = useContext(ToastContext);
     const navigate = useNavigate();
 
@@ -31,11 +30,23 @@ const Video = () => {
         setCommentText(textarea.value);
     };
     const { reaction, handleReaction } = useReaction();
-    const { userData } = useContext(AppContext);
+    const { userData: contextUserData } = useContext(AppContext);
     const [isSubscribed, setIsSubscribed] = useState(false);
 
+    // Fallback to localStorage if context userData is null
+    const parseUserData = (raw) => {
+        if (!raw) return null;
+        try {
+            return JSON.parse(raw);
+        } catch {
+            return null;
+        }
+    };
+    const userData = contextUserData || parseUserData(localStorage.getItem('user'));
+
+    const videoRef = useRef(null);
     const currentVideo = videoDetails;
-    const currentCreator = creator || videoDetails?.creator;
+    const currentCreator = currentVideo?.creator;
     const uploadDate = new Date(currentVideo?.createdAt || Date.now());
     const date = uploadDate.getDate();
     const month = uploadDate.getMonth() + 1;
@@ -89,7 +100,7 @@ const Video = () => {
 
     const handleCommentSubmit = async (event) => {
         event.preventDefault();
-        if(!userID){
+        if(!userData?._id){
             addToast({type: "error", message: "You must be signed in to comment."});
             return;
         }
@@ -107,7 +118,7 @@ const Video = () => {
                 },
                 body: JSON.stringify({
                     content: commentText,
-                    userId: userID,
+                    userId: userData._id,
                     parentComment: null
                 })
             });
@@ -126,7 +137,7 @@ const Video = () => {
     }
 
     const handleReplySubmit = async (parentCommentId) => {
-        if(!userID){
+        if(!userData?._id){
             addToast({type: "error", message: "You must be signed in to reply."});
             return;
         }
@@ -145,7 +156,7 @@ const Video = () => {
                 },
                 body: JSON.stringify({
                     content: body,
-                    userId: userID,
+                    userId: userData._id,
                     parentComment: parentCommentId
                 })
             });
@@ -232,11 +243,11 @@ const Video = () => {
     const likeVideo = async(e) => {
         e.preventDefault();
         try {
-            if(!userID){
+            if(!userData?._id){
                 addToast({type: "error", message: "User not authenticated"})
                 return;
             }
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/like/${userID}`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/like/${userData._id}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -258,11 +269,11 @@ const Video = () => {
     const dislikeVideo = async(e) => {
         e.preventDefault();
         try {
-            if(!userID){
+            if(!userData?._id){
                 addToast({type: "error", message: "User not authenticated"})
                 return;
             }
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/unlike/${userID}`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/video/${currentVideo?._id}/unlike/${userData._id}`, {
                 method: "POST",
                 credentials: 'include',
                 headers: {
@@ -283,14 +294,18 @@ const Video = () => {
 
     const subscribeChannel = async() => {
         try {
-            if(!userID) {
+            console.log("Subscribe attempt - userData:", userData, "contextUserData exists:", !!contextUserData);
+            if(!userData?._id) {
+                console.error("User data missing or no _id:", userData);
                 addToast({type: "error", message: "User not authenticated"});
                 return;
             }
             if(!currentVideo?.creator?._id){
                 throw new Error("Creator not found");
             }
-            if(currentVideo.creator._id === userID){
+            console.log("Comparing IDs - creator:", currentVideo.creator._id, "user:", userData._id);
+            if(currentVideo.creator._id.toString() === userData._id.toString()){
+                console.log("User is the creator - showing info toast");
                 addToast({type: "info", message: "You cannot subscribe to your own channel."});
                 return;
             }
@@ -302,7 +317,7 @@ const Video = () => {
                 },
                 body: JSON.stringify({
                     channelID: currentVideo.creator._id,
-                    user: userID
+                    user: userData._id
                 })
             })
             const response = await rawData.json();
@@ -311,6 +326,19 @@ const Video = () => {
                 throw new Error(response?.message || 'Subscription update failed');
             }
             setIsSubscribed(Boolean(response.isSubscribed));
+            
+            // Update the video details with the new subscriber count
+            if(response?.subscribersCount !== undefined){
+                setVideoDetails(prev => ({
+                    ...prev,
+                    creator: {
+                        ...prev.creator,
+                        subscribersCount: response.subscribersCount
+                    }
+                }));
+            }
+            
+            addToast({type: "success", message: response?.message || "Subscription updated"});
         } catch(err) {
             console.log(err);
             addToast({type: "error", message: err.message});
@@ -318,12 +346,12 @@ const Video = () => {
     }
 
     const checkSubscriptionStatus = async (creatorId) => {
-        if(!userID || !creatorId){
+        if(!userData?._id || !creatorId){
             setIsSubscribed(false);
             return;
         }
         try {
-            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/subscription-status?channelID=${creatorId}&userID=${userID}`, {
+            const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/subscription-status?channelID=${creatorId}&userID=${userData._id}`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -339,6 +367,12 @@ const Video = () => {
         getVideoDetails();
         getComments();
     },[getVideoDetails, getComments, reaction]);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.load();
+        }
+    }, [currentVideo?.filePath]);
 
     useEffect(() => {
         getRecommendedVideos();
@@ -357,7 +391,7 @@ const Video = () => {
 
     useEffect(() => {
         checkSubscriptionStatus(currentVideo?.creator?._id);
-    }, [currentVideo?.creator?._id, userID]);
+    }, [currentVideo?.creator?._id, userData]);
 
     return (
         loading ? <Loader /> :
@@ -365,7 +399,7 @@ const Video = () => {
         <div className="min-h-screen bg-slate-950 text-gray-200 flex flex-col lg:flex-row">
             <div className="lg:w-[70%]">
                 <div className="w-full bg-transparent p-2">
-                    <video id="video" className="w-full h-[65vh] min-h-[360px] object-cover rounded-xl" controls>
+                    <video ref={videoRef} id="video" className="w-full h-[65vh] min-h-[360px] object-cover rounded-xl" controls>
                         <source src={currentVideo.filePath}/>
                     </video>
                 </div>
