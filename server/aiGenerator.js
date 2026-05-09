@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
+dotenv.config();
+
 const client = new BedrockRuntimeClient({
     region: process.env.AWS_REGION,
     credentials: {
@@ -9,7 +11,7 @@ const client = new BedrockRuntimeClient({
     }
 })
 
-const MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
+const MODEL_ID = "arn:aws:bedrock:ap-south-1:596571386214:inference-profile/apac.amazon.nova-lite-v1:0";
 
 export const generateVideoMetaData = async(title) => {
     try {
@@ -30,20 +32,25 @@ export const generateVideoMetaData = async(title) => {
             contentType: "application/json",
             accept: "application/json",
             body: JSON.stringify({
-        anthropic_version: "bedrock-2023-05-31",
-        max_tokens: 300,
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
-      })
+                inferenceConfig: {
+                    max_new_tokens: 300,
+                    temperature: 0.7
+                },
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                text: prompt
+                            }
+                        ]
+                    }
+                ]
+            })
         });
         const response = await client.send(command);
-
         const result = await new Response(response.body).json();
-        const text = result.content[0].text;
+        const text = result.output.message.content[0].text;
         const metadata = JSON.parse(text);
         return metadata;
 
