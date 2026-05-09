@@ -101,9 +101,7 @@ const Home = ({ setPaginationData }) => {
     return (
         loading ? <Loader /> :
             <>
-                <div className='absolute top-3 right-3'>
-                    <Toast></Toast>
-                </div>
+                <Toast></Toast>
                 <div className='p-8 text-gray-200'>
                     <form onSubmit={handleSearch} className='mb-6 flex flex-col sm:flex-row gap-3'>
                         <input
@@ -120,7 +118,7 @@ const Home = ({ setPaginationData }) => {
                     <div className="w-full">
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
                             {videos.length > 0 ? videos.map((video, index) => (
-                                <VideoCard key={index} video={video} fromDashboard={false} />
+                                <VideoCard key={index} video={video} fromDashboard={false} creator={video.creator} />
                             )) : (
                                 <div className='col-span-full text-center text-gray-200'>No videos found.</div>
                             )}

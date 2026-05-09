@@ -102,9 +102,7 @@ const UploadVideo = () => {
   return (
     loading ? <Loader /> :
     <>
-    <div className='absolute top-3 right-3'>
-        <Toast></Toast>
-      </div>
+    <Toast></Toast>
     <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit bg-gray-900">
         <div class="relative z-0 w-full mb-8 group text-center">
             <h1 className='text-3xl font-bold text-gray-200'>Make Your Move</h1>

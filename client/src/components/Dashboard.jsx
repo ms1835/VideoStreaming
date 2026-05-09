@@ -125,9 +125,7 @@ const Dashboard = () => {
   return (
     loading ? <Loader /> :
     <>
-      <div className='absolute top-3 right-3'>
-        <Toast></Toast>
-      </div>
+      <Toast></Toast>
       <div className='flex flex-col m-8 text-gray-200'>
         <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-gray-900 items-center">
           <div className='flex justify-center lg:justify-start'>

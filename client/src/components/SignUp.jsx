@@ -8,7 +8,7 @@ const SignUp = () => {
     const [userData, setUserData] = useState({name:'',email:'',password:'',confirmPassword:''});
     const navigate = useNavigate();
     const { addToast } = useContext(ToastContext);
-    const { handleSession } = useContext(AppContext);
+    const { handleSession, handleUserData } = useContext(AppContext);
 
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -33,10 +33,10 @@ const SignUp = () => {
             console.log(response);
             if(response?.success){
                 localStorage.setItem('token', response.data._id);
-                localStorage.setItem('user',response.data);
+                handleUserData(response.data);
                 addToast({type: "success", message: response.message});
                 setUserData({email:'',password:''});
-                navigate('/user');
+                navigate('/');
                 handleSession(true);
             }
             else{
@@ -50,9 +50,7 @@ const SignUp = () => {
 
   return (
     <>
-    <div className='absolute top-3 right-3'>
-        <Toast></Toast>
-      </div>
+    <Toast></Toast>
     
     <form class=" w-[75%] sm:w-2/3 xl:w-1/3 mx-auto border border-2 rounded-lg p-4 my-8 md:my-0 md:p-16 self-center h-fit bg-gray-900">
         <div class="relative z-0 w-full mb-5 group text-center">

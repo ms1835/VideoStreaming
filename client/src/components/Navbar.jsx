@@ -48,9 +48,7 @@ const Navbar = () => {
 
     return (
       <>
-      <div className='absolute top-3 right-3'>
-        <Toast></Toast>
-      </div>
+      <Toast></Toast>
       <nav class="sticky w-full bg-gray-900 border-dashed border-b-2 border-slate-800">
         <div class="max-w-screen flex flex-wrap items-center justify-between mx-auto p-3 text-white">
           <div class="flex flex-wrap items-center gap-4">
