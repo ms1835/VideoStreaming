@@ -2,8 +2,10 @@ import React, {useState, useEffect, lazy, Suspense, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import Profile from './../assets/profile.jpg'
 import Loader from './Loader';
+import Pagination from './Pagination';
 import { AppContext } from '../context/AppContext';
 import { ToastContext } from '../context/ToastContext';
+import { usePagination } from '../hooks/usePagination';
 const VideoCard = lazy(()=> import('./VideoCard'));
 import Toast from './Message';
 
@@ -24,6 +26,8 @@ const Dashboard = () => {
   const [channelOwner, setChannelOwner] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const limit = 10;
+  const { page, totalPages, setPage, setTotalPages, handlePreviousPage, handleNextPage } = usePagination();
   const { addToast } = useContext(ToastContext);
   const { userData } = useContext(AppContext);
   const { userID: routeUserID } = useParams();
@@ -94,7 +98,7 @@ const Dashboard = () => {
         const getVideos = async() => {
             try{
                 setLoading(true);
-                const queryString = userData?._id ? `?currentUserID=${userData._id}` : "";
+                const queryString = userData?._id ? `?currentUserID=${userData._id}&page=${page}&limit=${limit}` : `?page=${page}&limit=${limit}`;
         const rawData = await fetch(`${import.meta.env.VITE_SERVER_URI}/user/${dashboardUserID}${queryString}`, {
                     method: "GET",
                     credentials: 'include'
@@ -104,6 +108,8 @@ const Dashboard = () => {
                 if(response?.success){
                   setVideos(response?.data);
                   setChannelOwner(response?.user);
+                  setPage(response?.pagination?.page || 1);
+                  setTotalPages(response?.pagination?.totalPages || 1);
                   updateSubscribedState(response?.user, response?.isSubscribed);
                 }
             } catch(error) {
@@ -116,17 +122,21 @@ const Dashboard = () => {
         if(dashboardUserID){
           getVideos();
         }
-    },[dashboardUserID]);
+    },[dashboardUserID, page]);
 
     useEffect(() => {
       updateSubscribedState(channelOwner);
     }, [userData, channelOwner]);
 
+    useEffect(() => {
+      setPage(1);
+    }, [dashboardUserID]);
+
   return (
     loading ? <Loader /> :
     <>
       <Toast></Toast>
-      <div className='flex flex-col m-8 text-gray-200'>
+      <div className='flex flex-col min-h-full m-8 text-gray-200'>
         <div className="flex flex-col lg:flex-row gap-4 p-4 border rounded-lg shadow-md justify-evenly bg-gray-900 items-center">
           <div className='flex justify-center lg:justify-start'>
           <img
@@ -160,13 +170,20 @@ const Dashboard = () => {
           </div>
         </div>
         <div className='border border-2 border-emerald-500 my-4 sm:my-8 md:my-16' />
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
+        <div className="w-full flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
           {videos.map((video, index) => (
             <Suspense fallback={<Loader />}>
               <VideoCard key={index} video={video} fromDashboard={true} onDelete={handleVideoDelete} creator={userData} />
             </Suspense>
           ))}
-          </div>
+        </div>
+
+        <Pagination 
+          page={page} 
+          totalPages={totalPages} 
+          onPreviousPage={handlePreviousPage} 
+          onNextPage={handleNextPage} 
+        />
       </div>
     </>
   );

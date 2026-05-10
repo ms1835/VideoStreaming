@@ -647,10 +647,28 @@ export const relatedVideos = async(req, res) => {
             },
             {
                 $match: {
-                    $or: [
-                        { title: { $regex: query, $options: 'i' } },
-                        { score: { $gte: 0.7 } }
-                    ]
+                    score: { $gte: 0.5 }  // Lower threshold for better semantic matching
+                }
+            },
+            {
+                $sort: { score: -1 }  // Sort by relevance score
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'creator',
+                    foreignField: '_id',
+                    as: 'creator'
+                }
+            },
+            {
+                $unwind: '$creator'
+            },
+            {
+                $project: {
+                    'creator.password': 0,
+                    'creator.createdAt': 0,
+                    'creator.updatedAt': 0
                 }
             }
         ]);

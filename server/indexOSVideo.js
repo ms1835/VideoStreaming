@@ -25,6 +25,7 @@ export const indexVideoByAtlas = async(video) => {
         const text = `
             Title: ${video.title}
             Description: ${video.description}
+            Tags: ${video.tags.join(', ')}
         `;
         const embedding = await getBedrockEmbedding(text);
         await Video.findByIdAndUpdate(video._id, { embedding }, { new: true });

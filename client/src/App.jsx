@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import './App.css'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
@@ -13,12 +12,6 @@ import UploadVideo from './components/UploadVideo';
 import Video from './components/Video';
 
 function App() {
-  const [paginationData, setPaginationData] = useState({
-    page: 1,
-    totalPages: 1,
-    onPageChange: null
-  });
-
   return (
     <Router>
       <div id="container">
@@ -32,7 +25,7 @@ function App() {
           <Sidebar />
           <div className='main-content'>
             <Routes>
-              <Route path='/' element={<Home setPaginationData={setPaginationData} />} />
+              <Route path='/' element={<Home />} />
               <Route path='/auth/login' element={<SignIn />} />
               <Route path='/auth/signup' element={<SignUp />} />
               <Route path='/user' element={<Dashboard />} />
@@ -42,7 +35,6 @@ function App() {
             </Routes>
           </div>
         </div>
-        <Footer paginationData={paginationData} />
       </div>
     </Router>
   )

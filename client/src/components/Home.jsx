@@ -1,18 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react'
 import VideoCard from './VideoCard';
 import Loader from './Loader';
+import Pagination from './Pagination';
 import { ToastContext } from '../context/ToastContext';
 import Toast from './Message';
+import { usePagination } from '../hooks/usePagination';
 
-const Home = ({ setPaginationData }) => {
+const Home = () => {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const { addToast } = useContext(ToastContext);
-    const limit = 9;
+    const { page, totalPages, setPage, setTotalPages, handlePreviousPage, handleNextPage } = usePagination();
+    const limit = 10;
 
     const fetchVideos = async (requestedPage = 1, query = '') => {
         try {
@@ -76,16 +77,6 @@ const Home = ({ setPaginationData }) => {
         }
     }, [page, searchQuery]);
 
-    useEffect(() => {
-        if (setPaginationData) {
-            setPaginationData({
-                page,
-                totalPages,
-                onPageChange: setPage
-            });
-        }
-    }, [page, totalPages, setPaginationData]);
-
     const handleSearch = (event) => {
         event.preventDefault();
         setPage(1);
@@ -102,7 +93,7 @@ const Home = ({ setPaginationData }) => {
         loading ? <Loader /> :
             <>
                 <Toast></Toast>
-                <div className='p-8 text-gray-200'>
+                <div className='px-4 pt-2 text-gray-200 min-h-full flex flex-col'>
                     <form onSubmit={handleSearch} className='mb-6 flex flex-col sm:flex-row gap-3'>
                         <input
                             type='text'
@@ -115,7 +106,7 @@ const Home = ({ setPaginationData }) => {
                         <button type='button' onClick={handleClearSearch} className='px-4 py-2 bg-gray-900 text-gray-200 rounded hover:bg-gray-800'>Clear</button>
                     </form>
 
-                    <div className="w-full">
+                    <div className="w-full flex-1">
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
                             {videos.length > 0 ? videos.map((video, index) => (
                                 <VideoCard key={index} video={video} fromDashboard={false} creator={video.creator} />
@@ -124,6 +115,13 @@ const Home = ({ setPaginationData }) => {
                             )}
                         </div>
                     </div>
+
+                    <Pagination 
+                        page={page} 
+                        totalPages={totalPages} 
+                        onPreviousPage={handlePreviousPage} 
+                        onNextPage={handleNextPage} 
+                    />
 
                 </div>
             </>
