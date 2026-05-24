@@ -1,8 +1,20 @@
+import dotenv from 'dotenv';
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
-const client = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION
-});
+dotenv.config();
+
+const config = {
+    region: process.env.AWS_REGION
+};
+
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    config.credentials = {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    };
+}
+
+const client = new BedrockRuntimeClient(config);
 
 const BEDROCK_MODEL_ID =
   process.env.BEDROCK_MODEL_ID || "amazon.titan-embed-text-v2:0";

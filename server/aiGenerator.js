@@ -3,13 +3,18 @@ import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedroc
 
 dotenv.config();
 
-const client = new BedrockRuntimeClient({
-    region: process.env.AWS_REGION,
-    credentials: {
+const config = {
+    region: process.env.AWS_REGION
+};
+
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    config.credentials = {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-})
+    };
+}
+
+const client = new BedrockRuntimeClient(config);
 
 const MODEL_ID = "arn:aws:bedrock:ap-south-1:596571386214:inference-profile/apac.amazon.nova-lite-v1:0";
 
