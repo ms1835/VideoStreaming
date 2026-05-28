@@ -1,6 +1,7 @@
 import { getBedrockEmbedding } from "./bedrock.js";
 // import { openSearchClient } from "./openSearch.js";
 import { Video} from './models/Video.js';
+import { buildVideoSearchText } from './vectorSearch.js';
 
 // export const indexOSVideo = async(video) => {
 //     try {
@@ -22,11 +23,8 @@ import { Video} from './models/Video.js';
 
 export const indexVideoByAtlas = async(video) => {
     try {
-        const text = `
-            Title: ${video.title}
-            Description: ${video.description}
-            Tags: ${video.tags.join(', ')}
-        `;
+        const indexedVideo = await Video.findById(video._id).populate('creator', 'name').lean();
+        const text = buildVideoSearchText(indexedVideo);
         const embedding = await getBedrockEmbedding(text);
         await Video.findByIdAndUpdate(video._id, { embedding }, { new: true });
         console.log(`Video ${video._id} indexed successfully.`);

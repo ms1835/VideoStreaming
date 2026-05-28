@@ -11,6 +11,7 @@ import { getEmbedding } from '../../embedding.js';
 import {  indexVideoByAtlas } from '../../indexOSVideo.js';
 import { getBedrockEmbedding } from "../../bedrock.js";
 import { generateVideoMetaData } from '../../aiGenerator.js';
+import { scoreRecommendation, scoreSemanticSearch } from '../../vectorSearch.js';
 // import { openSearchClient } from "../../openSearch.js";
 
 const MAX_VIDEO_SIZE = 25 * 1024 * 1024;
@@ -620,7 +621,7 @@ export const relatedVideos = async(req, res) => {
         }
         const searchQuery = `
         Search Query: ${query}
-        Related videos to the above search query
+        Find semantically similar videos across title, description, tags, creator metadata, and content.
         `;
         const queryEmbedding = await getBedrockEmbedding(searchQuery);
         if (!Array.isArray(queryEmbedding) || queryEmbedding.length === 0) {
@@ -636,22 +637,14 @@ export const relatedVideos = async(req, res) => {
                     index: "vector_index_videos",
                     queryVector: queryEmbedding,
                     path: "embedding",
-                    numCandidates: 100,
-                    limit: 10
+                    numCandidates: 200,
+                    limit: 40
                 }
             },
             {
                 $addFields: {
                     score: { $meta: "vectorSearchScore" }
                 }
-            },
-            {
-                $match: {
-                    score: { $gte: 0.5 }  // Lower threshold for better semantic matching
-                }
-            },
-            {
-                $sort: { score: -1 }  // Sort by relevance score
             },
             {
                 $lookup: {
@@ -662,20 +655,48 @@ export const relatedVideos = async(req, res) => {
                 }
             },
             {
-                $unwind: '$creator'
+                $unwind: {
+                    path: '$creator',
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
-                    'creator.password': 0,
-                    'creator.createdAt': 0,
-                    'creator.updatedAt': 0
+                    title: 1,
+                    description: 1,
+                    filePath: 1,
+                    creator: 1,
+                    tags: 1,
+                    likes: 1,
+                    commentsCount: 1,
+                    createdAt: 1,
+                    score: 1
                 }
             }
         ]);
-        console.log("Related videos search results count:", results.length);
+
+        const scores = results.map((video) => Number(video.score || 0)).filter((value) => Number.isFinite(value));
+        const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
+        const minScore = scores.length > 0 ? Math.min(...scores) : 0;
+
+        const rankedResults = results
+            .map((video) => {
+                const normalizedScore = maxScore === minScore ? 1 : (Number(video.score || 0) - minScore) / (maxScore - minScore);
+                const semanticScore = scoreSemanticSearch(query, video, normalizedScore);
+
+                return {
+                    ...video,
+                    normalizedScore,
+                    semanticScore
+                };
+            })
+            .sort((a, b) => Number(b.semanticScore) - Number(a.semanticScore))
+            .slice(0, 10);
+
+        console.log("Related videos search results count:", rankedResults.length);
         res.json({
             success: true,
-            data: results,
+            data: rankedResults,
             message: "Fetched related videos successfully"
         });
 
@@ -691,21 +712,22 @@ export const relatedVideos = async(req, res) => {
 export const getRecommendedVideos = async(req, res) => {
     try {
         const { videoId } = req.params;
-        const currentVideo = await Video.findById(videoId);
+        const currentVideo = await Video.findById(videoId).populate('creator', 'name');
         if(!currentVideo || !currentVideo?.embedding){
             return res.status(404).json({
                 success: false,
                 message: "Video not found or does not have embedding for recommendations"
             })
         }
-        const recommendedVideos = await Video.aggregate([
+
+        const candidateResults = await Video.aggregate([
             {
                 $vectorSearch: {
                     index: "vector_index_videos",
                     path: "embedding",
                     queryVector: currentVideo.embedding,
-                    numCandidates: 100,
-                    limit: 20
+                    numCandidates: 200,
+                    limit: 100
                 }
             },
             {
@@ -714,15 +736,65 @@ export const getRecommendedVideos = async(req, res) => {
                 }
             },
             {
+                $addFields: {
+                    score: { $meta: "vectorSearchScore" }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'creator',
+                    foreignField: '_id',
+                    as: 'creator'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$creator',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $project: {
                     title: 1,
                     description: 1,
                     filePath: 1,
-                    creator: 1,
-                    score: { $meta: "vectorSearchScore"}
+                    tags: 1,
+                    likes: 1,
+                    commentsCount: 1,
+                    createdAt: 1,
+                    score: 1,
+                    creator: {
+                        _id: 1,
+                        name: 1,
+                        email: 1,
+                        isAdmin: 1,
+                        subscribersCount: 1,
+                        subscribedToCount: 1
+                    }
                 }
             }
-        ])
+        ]);
+
+        const currentVideoData = currentVideo.toObject ? currentVideo.toObject() : currentVideo;
+        const scores = candidateResults.map((video) => Number(video.score || 0));
+        const minScore = scores.length > 0 ? Math.min(...scores) : 0;
+        const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
+
+        const recommendedVideos = candidateResults
+            .map((video) => {
+                const normalizedScore = maxScore === minScore ? 1 : (Number(video.score || 0) - minScore) / (maxScore - minScore);
+                const hybridScore = scoreRecommendation(currentVideoData, video, normalizedScore);
+
+                return {
+                    ...video,
+                    normalizedScore,
+                    hybridScore
+                };
+            })
+            .sort((a, b) => Number(b.hybridScore) - Number(a.hybridScore))
+            .slice(0, 10);
+
         res.status(200).json({
             success: true,
             data: recommendedVideos
