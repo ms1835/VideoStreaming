@@ -16,7 +16,7 @@ if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
 
 const client = new BedrockRuntimeClient(config);
 
-const MODEL_ID = "arn:aws:bedrock:ap-south-1:596571386214:inference-profile/apac.amazon.nova-lite-v1:0";
+const MODEL_ID = "arn:aws:bedrock:ap-south-1:055255093250:inference-profile/global.amazon.nova-2-lite-v1:0";
 
 export const generateVideoMetaData = async(title) => {
     try {
@@ -24,7 +24,7 @@ export const generateVideoMetaData = async(title) => {
         Given the title of a video, generate:
         1. A concise description (2-3 lines) that captures the essence of the video content.
         2. A list of 5 relevant tags that describe the video content.
-        Return the description and tags in a JSON format as follows:
+        Return ONLY raw JSON with no markdown, no code fences, no explanation. Format:
         {
         "description": "Generated description here",
         "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
@@ -55,7 +55,8 @@ export const generateVideoMetaData = async(title) => {
         });
         const response = await client.send(command);
         const result = await new Response(response.body).json();
-        const text = result.output.message.content[0].text;
+        const raw = result.output.message.content[0].text;
+        const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
         const metadata = JSON.parse(text);
         return metadata;
 
